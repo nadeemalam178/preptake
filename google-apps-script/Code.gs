@@ -245,9 +245,73 @@ function doGet(e) {
   if (action === 'health') {
     return responseJSON({ success: true, service: 'PrepTake Google Apps Script Backend', status: 'ready' });
   } else if (action === 'getQuestions') {
-    return handleGetQuestions(e.parameter.examId);
+    return handleGetQuestions(e.parameter.examId, e.parameter.limit, e.parameter.offset);
   }
   return responseJSON({ success: false, error: 'Unknown GET action' });
+}
+
+/**
+ * Action: getQuestions (GET)
+ * Fetches questions from Questions sheet, optionally filtered by examId
+ */
+function handleGetQuestions(examId, limitParam, offsetParam) {
+  try {
+    const ss = getSpreadsheet();
+    const qSheet = ss.getSheetByName('Questions');
+    if (!qSheet) {
+      return responseJSON({ success: true, count: 0, totalMatched: 0, questions: [] });
+    }
+    const rows = qSheet.getDataRange().getValues();
+    if (rows.length <= 1) {
+      return responseJSON({ success: true, count: 0, totalMatched: 0, questions: [] });
+    }
+
+    const limit = parseInt(limitParam, 10) || 100;
+    const offset = parseInt(offsetParam, 10) || 0;
+    const matched = [];
+
+    for (let i = 1; i < rows.length; i++) {
+      const row = rows[i];
+      const rowExamId = String(row[1] || '').trim();
+      if (!examId || rowExamId === examId) {
+        matched.push({
+          id: String(row[0] || '').trim(),
+          examId: rowExamId,
+          subjectId: String(row[2] || '').trim(),
+          chapterId: String(row[3] || '').trim(),
+          topicId: String(row[4] || '').trim(),
+          year: row[5] ? parseInt(row[5], 10) : undefined,
+          session: String(row[6] || '').trim(),
+          questionText: String(row[7] || '').trim(),
+          options: [
+            { id: 'A', text: String(row[8] || '').trim() },
+            { id: 'B', text: String(row[9] || '').trim() },
+            { id: 'C', text: String(row[10] || '').trim() },
+            { id: 'D', text: String(row[11] || '').trim() },
+            ...(row[12] ? [{ id: 'E', text: String(row[12] || '').trim() }] : [])
+          ],
+          correctAnswerId: String(row[13] || '').trim(),
+          explanation: String(row[14] || '').trim(),
+          sourceReference: String(row[15] || '').trim(),
+          contentType: String(row[16] || '').trim(),
+          verificationStatus: String(row[17] || '').trim(),
+          difficulty: String(row[18] || '').trim()
+        });
+      }
+    }
+
+    const paged = matched.slice(offset, offset + limit);
+    return responseJSON({
+      success: true,
+      totalMatched: matched.length,
+      count: paged.length,
+      offset: offset,
+      limit: limit,
+      questions: paged
+    });
+  } catch (err) {
+    return responseJSON({ success: false, error: err.toString() });
+  }
 }
 
 /**

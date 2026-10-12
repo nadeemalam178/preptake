@@ -1,13 +1,15 @@
 #!/usr/bin/env python3
 """
-PrepTake Content Pipeline — Question Validator
+PrepTake Content Pipeline — Enhanced Question Validator
 Strictly validates questions against the canonical schema, prevents duplicates,
-verifies that options match examination patterns, and generates validation reports.
+verifies that options match examination patterns (4 for CTET/STET, 5 for BPSC),
+and generates comprehensive validation reports.
 """
 
 import json
 import os
 import sys
+from collections import defaultdict
 
 VALID_EXAM_IDS = {
     'ctet-p2', 'ctet-p2-maths-science',
@@ -48,25 +50,33 @@ def validate_question(q, index):
     if not qtext or len(str(qtext).strip()) < 10:
         errors.append(f"Question {qid}: Question text too short or empty")
 
-    # 5. Options
+    # 5. Options count & format
     options = q.get('options', [])
-    if not isinstance(options, list) or len(options) < 4:
-        errors.append(f"Question {qid}: Must have at least 4 options")
-    
-    option_ids = set()
-    for opt in options:
-        opt_id = opt.get('id')
-        opt_text = opt.get('text')
-        if not opt_id or opt_id not in {'A', 'B', 'C', 'D', 'E'}:
-            errors.append(f"Question {qid}: Invalid option ID '{opt_id}'")
-        if not opt_text or not str(opt_text).strip():
-            errors.append(f"Question {qid}: Empty option text for option '{opt_id}'")
-        option_ids.add(opt_id)
+    if not isinstance(options, list):
+        errors.append(f"Question {qid}: Options must be a list")
+    else:
+        # Check option count based on examination pattern
+        if exam_id in {'bpsc-tre-middle', 'bpsc-tre-secondary', 'bpsc-tre4-6-8-maths-science', 'bpsc-tre4-9-10-science'}:
+            if len(options) != 5:
+                errors.append(f"Question {qid}: BPSC TRE must have exactly 5 options (found {len(options)})")
+        else:
+            if len(options) != 4:
+                errors.append(f"Question {qid}: CTET/STET must have exactly 4 options (found {len(options)})")
+        
+        option_ids = set()
+        for opt in options:
+            opt_id = opt.get('id')
+            opt_text = opt.get('text')
+            if not opt_id or opt_id not in {'A', 'B', 'C', 'D', 'E'}:
+                errors.append(f"Question {qid}: Invalid option ID '{opt_id}'")
+            if not opt_text or not str(opt_text).strip():
+                errors.append(f"Question {qid}: Empty option text for option '{opt_id}'")
+            option_ids.add(opt_id)
 
-    # 6. Correct Answer
-    correct = q.get('correctAnswerId') or q.get('correctAnswer')
-    if not correct or correct not in option_ids:
-        errors.append(f"Question {qid}: Correct answer '{correct}' is not in options {list(option_ids)}")
+        # 6. Correct Answer
+        correct = q.get('correctAnswerId') or q.get('correctAnswer')
+        if not correct or correct not in option_ids:
+            errors.append(f"Question {qid}: Correct answer '{correct}' is not in options {list(option_ids)}")
 
     # 7. Explanation
     expl = q.get('explanation')
@@ -109,6 +119,8 @@ def run_validation(input_file, report_dir):
     duplicate_texts = []
 
     exam_stats = {}
+    chapter_stats = defaultdict(lambda: defaultdict(int))
+    difficulty_stats = defaultdict(lambda: defaultdict(int))
 
     for idx, q in enumerate(questions):
         qid = q.get('id') or q.get('questionId')
@@ -120,7 +132,7 @@ def run_validation(input_file, report_dir):
             seen_ids.add(qid)
 
         # Check duplicate question text
-        qtext = str(q.get('questionText', '')).strip().lower()
+        qtext = " ".join(str(q.get('questionText', '')).strip().lower().split())
         if qtext in seen_texts:
             duplicate_texts.append({'original': seen_texts[qtext], 'duplicate': qid, 'text': qtext[:60]})
         else:
@@ -140,6 +152,11 @@ def run_validation(input_file, report_dir):
         else:
             exam_stats[exam_id]['practice'] += 1
 
+        ch = q.get('chapter', 'General')
+        chapter_stats[exam_id][ch] += 1
+        diff = q.get('difficulty', 'Moderate')
+        difficulty_stats[exam_id][diff] += 1
+
     report = {
         'totalQuestions': len(questions),
         'uniqueIds': len(seen_ids),
@@ -150,7 +167,7 @@ def run_validation(input_file, report_dir):
         'validationErrorCount': len(total_errors),
         'validationErrors': total_errors,
         'examBreakdown': exam_stats,
-        'passed': len(total_errors) == 0 and len(duplicate_ids) == 0
+        'passed': len(total_errors) == 0 and len(duplicate_ids) == 0 and len(duplicate_texts) == 0
     }
 
     os.makedirs(report_dir, exist_ok=True)
@@ -160,21 +177,35 @@ def run_validation(input_file, report_dir):
 
     md_path = os.path.join(report_dir, 'validation_report.md')
     with open(md_path, 'w', encoding='utf-8') as f:
-        f.write("# PrepTake Question Bank Validation Report\n\n")
-        f.write(f"- **Status**: {'PASSED (Zero Errors)' if report['passed'] else 'FAILED'}\n")
-        f.write(f"- **Total Questions Evaluated**: {report['totalQuestions']}\n")
+        f.write("# PrepTake Question Bank Comprehensive Validation Report\n\n")
+        f.write(f"- **Audit Status**: {'PASSED (Zero Errors)' if report['passed'] else 'FAILED'}\n")
+        f.write(f"- **Total Validated Questions**: {report['totalQuestions']}\n")
         f.write(f"- **Duplicate IDs**: {report['duplicateIdCount']}\n")
         f.write(f"- **Duplicate Question Texts**: {report['duplicateTextCount']}\n")
         f.write(f"- **Validation Errors**: {report['validationErrorCount']}\n\n")
         
-        f.write("## Examination Content Breakdown\n\n")
-        f.write("| Examination ID | Total Questions | Verified Official PYQs | Curated Practice Drills |\n")
-        f.write("| :--- | :--- | :--- | :--- |\n")
+        f.write("## 1. Examination Content Breakdown\n\n")
+        f.write("| Examination ID | Total Questions | Verified Official PYQs | Curated Practice Drills | Option Format |\n")
+        f.write("| :--- | :---: | :---: | :---: | :---: |\n")
         for eid, stats in exam_stats.items():
-            f.write(f"| `{eid}` | {stats['total']} | {stats['pyq']} | {stats['practice']} |\n")
+            opt_pat = "5 Options (A–E)" if "bpsc" in eid else "4 Options (A–D)"
+            f.write(f"| `{eid}` | **{stats['total']}** | {stats['pyq']} | {stats['practice']} | {opt_pat} |\n")
+
+        f.write("\n## 2. Difficulty Distribution\n\n")
+        f.write("| Examination | Easy | Moderate | Challenging |\n")
+        f.write("| :--- | :---: | :---: | :---: |\n")
+        for eid in exam_stats.keys():
+            f.write(f"| `{eid}` | {difficulty_stats[eid]['Easy']} | {difficulty_stats[eid]['Moderate']} | {difficulty_stats[eid]['Challenging']} |\n")
+
+        f.write("\n## 3. Top Chapters by Coverage\n\n")
+        for eid, chs in chapter_stats.items():
+            f.write(f"### `{eid}`\n")
+            for ch_title, cnt in sorted(chs.items(), key=lambda x: -x[1])[:8]:
+                f.write(f"- **{ch_title}**: {cnt} questions\n")
+            f.write("\n")
 
         if total_errors:
-            f.write("\n## Errors Detected\n\n")
+            f.write("\n## Detected Errors (Sample)\n\n")
             for err in total_errors[:30]:
                 f.write(f"- {err}\n")
 

@@ -1,0 +1,71 @@
+{
+  "timestamp": "2026-10-13T01:35:00Z",
+  "totalConfiguredSources": 8,
+  "processedDocuments": [],
+  "manualActionRequired": [
+    {
+      "sourceId": "ctet-jan-2024-p2",
+      "examId": "ctet-p2",
+      "sourceDocument": "CTET Jan 2024 Paper II Question Booklet & Final Answer Key",
+      "officialPortal": "https://ctet.nic.in",
+      "expectedLocalPath": "C:\\Users\\Nadeem\\Downloads\\Antigravity\\PREPTAKE\\content-pipeline\\downloads\\ctet-p2\\ctet-jan-2024-p2.pdf",
+      "instructions": "Download official PDF from https://ctet.nic.in and save as C:\\Users\\Nadeem\\Downloads\\Antigravity\\PREPTAKE\\content-pipeline\\downloads\\ctet-p2\\ctet-jan-2024-p2.pdf, then rerun ingestion."
+    },
+    {
+      "sourceId": "ctet-aug-2023-p2",
+      "examId": "ctet-p2",
+      "sourceDocument": "CTET August 2023 Paper II Question Paper & Master Key",
+      "officialPortal": "https://ctet.nic.in",
+      "expectedLocalPath": "C:\\Users\\Nadeem\\Downloads\\Antigravity\\PREPTAKE\\content-pipeline\\downloads\\ctet-p2\\ctet-aug-2023-p2.pdf",
+      "instructions": "Download official PDF from https://ctet.nic.in and save as C:\\Users\\Nadeem\\Downloads\\Antigravity\\PREPTAKE\\content-pipeline\\downloads\\ctet-p2\\ctet-aug-2023-p2.pdf, then rerun ingestion."
+    },
+    {
+      "sourceId": "bpsc-tre-3-middle",
+      "examId": "bpsc-tre-middle",
+      "sourceDocument": "BPSC TRE 3.0 Middle School (Class 6-8) Mathematics & Science Question Booklet",
+      "officialPortal": "https://www.bpsc.bih.nic.in",
+      "expectedLocalPath": "C:\\Users\\Nadeem\\Downloads\\Antigravity\\PREPTAKE\\content-pipeline\\downloads\\bpsc-tre-middle\\bpsc-tre-3-middle.pdf",
+      "instructions": "Download official PDF from https://www.bpsc.bih.nic.in and save as C:\\Users\\Nadeem\\Downloads\\Antigravity\\PREPTAKE\\content-pipeline\\downloads\\bpsc-tre-middle\\bpsc-tre-3-middle.pdf, then rerun ingestion."
+    },
+    {
+      "sourceId": "bpsc-tre-2-middle",
+      "examId": "bpsc-tre-middle",
+      "sourceDocument": "BPSC TRE 2.0 Middle Stage (Classes 6-8) Mathematics and Science Question Paper",
+      "officialPortal": "https://www.bpsc.bih.nic.in",
+      "expectedLocalPath": "C:\\Users\\Nadeem\\Downloads\\Antigravity\\PREPTAKE\\content-pipeline\\downloads\\bpsc-tre-middle\\bpsc-tre-2-middle.pdf",
+      "instructions": "Download official PDF from https://www.bpsc.bih.nic.in and save as C:\\Users\\Nadeem\\Downloads\\Antigravity\\PREPTAKE\\content-pipeline\\downloads\\bpsc-tre-middle\\bpsc-tre-2-middle.pdf, then rerun ingestion."
+    },
+    {
+      "sourceId": "bpsc-tre-3-secondary",
+      "examId": "bpsc-tre-secondary",
+      "sourceDocument": "BPSC TRE 3.0 Secondary Stage (Class 9-10) Science Booklet",
+      "officialPortal": "https://www.bpsc.bih.nic.in",
+      "expectedLocalPath": "C:\\Users\\Nadeem\\Downloads\\Antigravity\\PREPTAKE\\content-pipeline\\downloads\\bpsc-tre-secondary\\bpsc-tre-3-secondary.pdf",
+      "instructions": "Download official PDF from https://www.bpsc.bih.nic.in and save as C:\\Users\\Nadeem\\Downloads\\Antigravity\\PREPTAKE\\content-pipeline\\downloads\\bpsc-tre-secondary\\bpsc-tre-3-secondary.pdf, then rerun ingestion."
+    },
+    {
+      "sourceId": "bpsc-tre-1-secondary",
+      "examId": "bpsc-tre-secondary",
+      "sourceDocument": "BPSC TRE 1.0 Secondary Stage (Class 9-10) Science Booklet",
+      "officialPortal": "https://www.bpsc.bih.nic.in",
+      "expectedLocalPath": "C:\\Users\\Nadeem\\Downloads\\Antigravity\\PREPTAKE\\content-pipeline\\downloads\\bpsc-tre-secondary\\bpsc-tre-1-secondary.pdf",
+      "instructions": "Download official PDF from https://www.bpsc.bih.nic.in and save as C:\\Users\\Nadeem\\Downloads\\Antigravity\\PREPTAKE\\content-pipeline\\downloads\\bpsc-tre-secondary\\bpsc-tre-1-secondary.pdf, then rerun ingestion."
+    },
+    {
+      "sourceId": "stet-2024-p1",
+      "examId": "bihar-stet-p1",
+      "sourceDocument": "Bihar STET 2024 Paper 1 Question Paper & Master Key",
+      "officialPortal": "https://secondary.biharboardonline.com",
+      "expectedLocalPath": "C:\\Users\\Nadeem\\Downloads\\Antigravity\\PREPTAKE\\content-pipeline\\downloads\\bihar-stet-p1\\stet-2024-p1.pdf",
+      "instructions": "Download official PDF from https://secondary.biharboardonline.com and save as C:\\Users\\Nadeem\\Downloads\\Antigravity\\PREPTAKE\\content-pipeline\\downloads\\bihar-stet-p1\\stet-2024-p1.pdf, then rerun ingestion."
+    },
+    {
+      "sourceId": "stet-2023-p1",
+      "examId": "bihar-stet-p1",
+      "sourceDocument": "Bihar STET 2023 Paper 1 Question Paper & Answer Key",
+      "officialPortal": "https://secondary.biharboardonline.com",
+      "expectedLocalPath": "C:\\Users\\Nadeem\\Downloads\\Antigravity\\PREPTAKE\\content-pipeline\\downloads\\bihar-stet-p1\\stet-2023-p1.pdf",
+      "instructions": "Download official PDF from https://secondary.biharboardonline.com and save as C:\\Users\\Nadeem\\Downloads\\Antigravity\\PREPTAKE\\content-pipeline\\downloads\\bihar-stet-p1\\stet-2023-p1.pdf, then rerun ingestion."
+    }
+  ]
+}

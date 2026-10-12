@@ -1,27 +1,33 @@
 {
-  "totalQuestions": 620,
-  "totalTests": 12,
-  "errors": [],
-  "examCounts": {
+  "totalQuestions": 4139,
+  "uniqueIds": 4139,
+  "duplicateIdCount": 0,
+  "duplicateIds": [],
+  "duplicateTextCount": 0,
+  "duplicateTexts": [],
+  "validationErrorCount": 0,
+  "validationErrors": [],
+  "examBreakdown": {
     "ctet-p2": {
-      "total": 158,
-      "officialPYQs": 8,
-      "practice": 150
+      "total": 1029,
+      "pyq": 8,
+      "practice": 1021
     },
     "bihar-stet-p1": {
-      "total": 154,
-      "officialPYQs": 5,
-      "practice": 149
+      "total": 1028,
+      "pyq": 4,
+      "practice": 1024
     },
     "bpsc-tre-middle": {
-      "total": 154,
-      "officialPYQs": 6,
-      "practice": 148
+      "total": 1042,
+      "pyq": 6,
+      "practice": 1036
     },
     "bpsc-tre-secondary": {
-      "total": 154,
-      "officialPYQs": 6,
-      "practice": 148
+      "total": 1040,
+      "pyq": 6,
+      "practice": 1034
     }
-  }
+  },
+  "passed": true
 }
