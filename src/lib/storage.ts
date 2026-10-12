@@ -1,29 +1,39 @@
 import { ExamId, TestResult, UserProfile } from '@/types';
 
-const STORAGE_KEY_CURRENT_USER = 'preptake_current_user_id';
-const STORAGE_KEY_USERS_PREFIX = 'preptake_user_profile_';
-const STORAGE_KEY_ALL_USERS = 'preptake_registered_users';
-const STORAGE_KEY_SESSION = 'preptake_session_active';
+const STORAGE_KEY_SESSION_TOKEN = 'preptake_session_token';
+const STORAGE_KEY_CURRENT_USER = 'preptake_current_user_profile';
 
 export const SPREADSHEET_ID = process.env.NEXT_PUBLIC_GOOGLE_SHEET_ID || '14bH4IMp7x5nR3TJEKzt5VtIAq-WivnEPhSFCIfZwfb0';
 export const APPS_SCRIPT_URL = process.env.NEXT_PUBLIC_APPS_SCRIPT_URL || 'https://script.google.com/macros/s/AKfycbwaRRVTypYkRt6OKKqwXWqBUUIi1QIYgw0esp3Cp4YUit4aDA-MIYm-pOAVqy7q8m1e/exec';
 
 export const DEFAULT_EXAMS: ExamId[] = ['ctet-p2', 'bihar-stet-p1'];
 
-export function isSessionActive(): boolean {
-  if (typeof window === 'undefined') return false;
-  return localStorage.getItem(STORAGE_KEY_SESSION) === 'true';
+/**
+ * Session Token Management
+ */
+export function getSessionToken(): string | null {
+  if (typeof window === 'undefined') return null;
+  return localStorage.getItem(STORAGE_KEY_SESSION_TOKEN);
 }
 
-export function setSessionActive(active: boolean): void {
+export function setSessionToken(token: string | null): void {
   if (typeof window === 'undefined') return;
-  if (active) {
-    localStorage.setItem(STORAGE_KEY_SESSION, 'true');
+  if (token) {
+    localStorage.setItem(STORAGE_KEY_SESSION_TOKEN, token);
   } else {
-    localStorage.removeItem(STORAGE_KEY_SESSION);
+    localStorage.removeItem(STORAGE_KEY_SESSION_TOKEN);
   }
 }
 
+export function isSessionActive(): boolean {
+  if (typeof window === 'undefined') return false;
+  const token = getSessionToken();
+  return Boolean(token && token.trim().length > 0);
+}
+
+/**
+ * Profile helpers
+ */
 export function createDefaultProfile(userId: string = 'student1', displayName: string = 'Candidate'): UserProfile {
   const now = new Date().toISOString();
   return {
@@ -42,165 +52,294 @@ export function createDefaultProfile(userId: string = 'student1', displayName: s
   };
 }
 
-export function getAllSavedUsers(): { id: string; name: string }[] {
-  if (typeof window === 'undefined') return [];
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY_ALL_USERS);
-    if (!raw) return [];
-    return JSON.parse(raw);
-  } catch (e) {
-    return [];
+export function getCurrentUser(): UserProfile {
+  if (typeof window === 'undefined') {
+    return createDefaultProfile();
   }
-}
-
-function saveUsersList(users: { id: string; name: string }[]) {
-  if (typeof window === 'undefined') return;
-  localStorage.setItem(STORAGE_KEY_ALL_USERS, JSON.stringify(users));
-}
-
-export function getUserProfile(userId: string): UserProfile | null {
-  if (typeof window === 'undefined') return null;
   try {
-    const raw = localStorage.getItem(`${STORAGE_KEY_USERS_PREFIX}${userId.toLowerCase()}`);
-    if (!raw) return null;
-    return JSON.parse(raw);
+    const raw = localStorage.getItem(STORAGE_KEY_CURRENT_USER);
+    if (raw) {
+      return JSON.parse(raw);
+    }
   } catch (e) {
-    return null;
+    console.error('Error reading cached user profile:', e);
   }
+  return createDefaultProfile();
 }
 
 export function saveUserProfile(profile: UserProfile): void {
   if (typeof window === 'undefined') return;
   try {
     profile.updatedAt = new Date().toISOString();
-    const cleanId = profile.id.toLowerCase();
-    localStorage.setItem(`${STORAGE_KEY_USERS_PREFIX}${cleanId}`, JSON.stringify(profile));
-    localStorage.setItem(STORAGE_KEY_CURRENT_USER, cleanId);
-
-    // Update local users index
-    const users = getAllSavedUsers();
-    const index = users.findIndex(u => u.id === cleanId);
-    if (index >= 0) {
-      users[index] = { id: cleanId, name: profile.name };
-    } else {
-      users.push({ id: cleanId, name: profile.name });
-    }
-    saveUsersList(users);
-
-    // Broadcast reactive update to all views
+    localStorage.setItem(STORAGE_KEY_CURRENT_USER, JSON.stringify(profile));
     window.dispatchEvent(new Event('preptake_storage_updated'));
   } catch (e) {
-    console.error('Failed to save user profile', e);
+    console.error('Failed to save user profile cache', e);
   }
 }
 
-export function getCurrentUser(): UserProfile {
-  if (typeof window === 'undefined') {
-    return createDefaultProfile();
-  }
-  const currentId = localStorage.getItem(STORAGE_KEY_CURRENT_USER);
-  if (currentId) {
-    const existing = getUserProfile(currentId);
-    if (existing) return existing;
-  }
-
-  const allUsers = getAllSavedUsers();
-  if (allUsers.length > 0) {
-    const first = getUserProfile(allUsers[0].id);
-    if (first) {
-      localStorage.setItem(STORAGE_KEY_CURRENT_USER, first.id);
-      return first;
-    }
-  }
-
-  const fresh = createDefaultProfile('nadeem', 'Nadeem');
-  saveUserProfile(fresh);
-  return fresh;
-}
-
-export async function loginUserWithBackend(userId: string, plainPassword: string): Promise<{ success: boolean; error?: string; user?: UserProfile }> {
-  const cleanId = userId.trim().toLowerCase();
-
-  // If Google Apps Script Web App URL is configured, authenticate server-side against Google Sheets!
-  if (APPS_SCRIPT_URL) {
-    try {
-      const response = await fetch(APPS_SCRIPT_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-        body: JSON.stringify({
-          action: 'login',
-          userId: cleanId,
-          password: plainPassword
-        })
-      });
-
-      if (response.ok) {
-        const resData = await response.json();
-        if (resData.success && resData.user) {
-          // Merge server data into user profile
-          const serverData = resData.data || {};
-          let profile = getUserProfile(cleanId);
-          if (!profile) {
-            profile = createDefaultProfile(cleanId, resData.user.displayName || cleanId);
-          }
-          profile.name = resData.user.displayName || profile.name;
-          if (serverData.selectedExams && serverData.selectedExams.length > 0) {
-            profile.selectedExams = serverData.selectedExams;
-          }
-          if (serverData.completedTopicIds) profile.completedTopicIds = serverData.completedTopicIds;
-          if (serverData.bookmarkedQuestionIds) profile.bookmarkedQuestionIds = serverData.bookmarkedQuestionIds;
-          if (serverData.testResults) profile.testResults = serverData.testResults;
-          if (serverData.questionHistory) profile.questionHistory = serverData.questionHistory;
-          if (serverData.attemptedQuestionIds) profile.attemptedQuestionIds = serverData.attemptedQuestionIds;
-
-          saveUserProfile(profile);
-          setSessionActive(true);
-          return { success: true, user: profile };
-        } else {
-          return { success: false, error: resData.error || 'Invalid credentials' };
-        }
-      }
-    } catch (err: any) {
-      console.warn('Apps Script backend unreachable, falling back to verified local candidate session:', err);
-    }
-  }
-
-  // Local student verification fallback
-  let profile = getUserProfile(cleanId);
-  if (!profile) {
-    profile = createDefaultProfile(cleanId, cleanId.charAt(0).toUpperCase() + cleanId.slice(1));
-  }
-  saveUserProfile(profile);
-  setSessionActive(true);
-  return { success: true, user: profile };
-}
-
-export function logoutUser(): void {
-  setSessionActive(false);
-  window.dispatchEvent(new Event('preptake_storage_updated'));
-}
-
-export function switchUser(userId: string): UserProfile {
-  if (typeof window === 'undefined') return createDefaultProfile();
-  const profile = getUserProfile(userId);
-  if (profile) {
-    localStorage.setItem(STORAGE_KEY_CURRENT_USER, profile.id);
-    setSessionActive(true);
-    window.dispatchEvent(new Event('preptake_storage_updated'));
-    return profile;
-  }
-  return getCurrentUser();
-}
-
+/**
+ * Send authenticated POST payload to Apps Script backend
+ */
 function postToBackend(payload: Record<string, any>): void {
   if (!APPS_SCRIPT_URL || typeof window === 'undefined') return;
+  const token = getSessionToken();
+  if (!token) return;
+
+  const body = {
+    ...payload,
+    sessionToken: token
+  };
+
   fetch(APPS_SCRIPT_URL, {
     method: 'POST',
     headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-    body: JSON.stringify(payload)
-  }).catch(e => console.warn('Google Sheet sync notice:', e));
+    body: JSON.stringify(body)
+  }).catch(e => console.warn('Google Sheet background sync notice:', e));
 }
 
+/**
+ * Server Authentication: Login
+ * Authenticates against Google Sheets Users table using salted SHA-256.
+ * Generates and stores a secure sessionToken.
+ */
+export async function loginUserWithBackend(
+  userId: string,
+  plainPassword: string
+): Promise<{ success: boolean; error?: string; user?: UserProfile }> {
+  const cleanId = userId.trim().toLowerCase();
+
+  if (!cleanId || !plainPassword) {
+    return { success: false, error: 'User ID and Password are required.' };
+  }
+
+  if (!APPS_SCRIPT_URL) {
+    return { success: false, error: 'Google Apps Script backend URL is not configured.' };
+  }
+
+  try {
+    const response = await fetch(APPS_SCRIPT_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify({
+        action: 'login',
+        userId: cleanId,
+        password: plainPassword
+      })
+    });
+
+    if (!response.ok) {
+      return { success: false, error: `Server error (${response.status}). Please try again.` };
+    }
+
+    const resData = await response.json();
+    if (resData.success && resData.sessionToken && resData.user) {
+      // Store verified session token
+      setSessionToken(resData.sessionToken);
+
+      // Construct and cache profile
+      const serverData = resData.data || {};
+      const profile: UserProfile = {
+        id: resData.user.userId,
+        name: resData.user.displayName || resData.user.userId,
+        email: `${resData.user.userId}@preptake.internal`,
+        selectedExams: serverData.selectedExams && serverData.selectedExams.length > 0
+          ? serverData.selectedExams
+          : DEFAULT_EXAMS,
+        completedTopicIds: serverData.completedTopicIds || [],
+        bookmarkedQuestionIds: serverData.bookmarkedQuestionIds || [],
+        attemptedQuestionIds: serverData.attemptedQuestionIds || [],
+        questionHistory: serverData.questionHistory || {},
+        testResults: serverData.testResults || [],
+        lastStudiedTopicId: serverData.lastStudiedTopicId || '',
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      };
+
+      saveUserProfile(profile);
+      return { success: true, user: profile };
+    } else {
+      return { success: false, error: resData.error || 'Invalid User ID or Password.' };
+    }
+  } catch (err: any) {
+    console.error('Login network error:', err);
+    return {
+      success: false,
+      error: 'Unable to connect to Google Sheets backend. Please check your internet connection.'
+    };
+  }
+}
+
+/**
+ * Server Authentication: New User Registration
+ * Validates fields on frontend and server, checks uniqueness with LockService,
+ * stores salted hash in Google Sheets Users tab, and establishes a new session.
+ */
+export async function registerUserWithBackend(
+  fullName: string,
+  userId: string,
+  plainPassword: string,
+  confirmPassword: string
+): Promise<{ success: boolean; error?: string; user?: UserProfile; isNewUser?: boolean }> {
+  const cleanName = fullName.trim();
+  const cleanId = userId.trim().toLowerCase();
+
+  // Frontend validation
+  if (!cleanName || cleanName.length < 2) {
+    return { success: false, error: 'Full Name must be at least 2 characters.' };
+  }
+  if (!cleanId || cleanId.length < 3 || cleanId.length > 30) {
+    return { success: false, error: 'User ID must be between 3 and 30 characters.' };
+  }
+  const idRegex = /^[a-z0-9_-]+$/;
+  if (!idRegex.test(cleanId)) {
+    return { success: false, error: 'User ID can only contain letters, numbers, hyphens, and underscores.' };
+  }
+  if (!plainPassword || plainPassword.length < 6) {
+    return { success: false, error: 'Password must be at least 6 characters long.' };
+  }
+  if (plainPassword !== confirmPassword) {
+    return { success: false, error: 'Password and Confirm Password do not match.' };
+  }
+
+  if (!APPS_SCRIPT_URL) {
+    return { success: false, error: 'Google Apps Script backend URL is not configured.' };
+  }
+
+  try {
+    const response = await fetch(APPS_SCRIPT_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify({
+        action: 'register',
+        fullName: cleanName,
+        userId: cleanId,
+        password: plainPassword,
+        confirmPassword: confirmPassword
+      })
+    });
+
+    if (!response.ok) {
+      return { success: false, error: `Registration server error (${response.status}). Please try again.` };
+    }
+
+    const resData = await response.json();
+    if (resData.success && resData.sessionToken && resData.user) {
+      // Store verified session token
+      setSessionToken(resData.sessionToken);
+
+      const profile: UserProfile = {
+        id: resData.user.userId,
+        name: resData.user.displayName || cleanName,
+        email: `${resData.user.userId}@preptake.internal`,
+        selectedExams: DEFAULT_EXAMS,
+        completedTopicIds: [],
+        bookmarkedQuestionIds: [],
+        attemptedQuestionIds: [],
+        questionHistory: {},
+        testResults: [],
+        lastStudiedTopicId: '',
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      };
+
+      saveUserProfile(profile);
+      return { success: true, user: profile, isNewUser: true };
+    } else {
+      return { success: false, error: resData.error || 'Registration failed.' };
+    }
+  } catch (err: any) {
+    console.error('Registration network error:', err);
+    return {
+      success: false,
+      error: 'Unable to connect to Google Sheets backend. Registration cannot proceed offline.'
+    };
+  }
+}
+
+/**
+ * Validate and restore session on application load or page refresh
+ */
+export async function restoreSessionWithBackend(): Promise<UserProfile | null> {
+  const token = getSessionToken();
+  if (!token) {
+    logoutUser();
+    return null;
+  }
+
+  if (!APPS_SCRIPT_URL) return getCurrentUser();
+
+  try {
+    const response = await fetch(APPS_SCRIPT_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify({
+        action: 'validateSession',
+        sessionToken: token
+      })
+    });
+
+    if (response.ok) {
+      const resData = await response.json();
+      if (resData.success && resData.user) {
+        const serverData = resData.data || {};
+        const profile: UserProfile = {
+          id: resData.user.userId,
+          name: resData.user.displayName || resData.user.userId,
+          email: `${resData.user.userId}@preptake.internal`,
+          selectedExams: serverData.selectedExams && serverData.selectedExams.length > 0
+            ? serverData.selectedExams
+            : DEFAULT_EXAMS,
+          completedTopicIds: serverData.completedTopicIds || [],
+          bookmarkedQuestionIds: serverData.bookmarkedQuestionIds || [],
+          attemptedQuestionIds: serverData.attemptedQuestionIds || [],
+          questionHistory: serverData.questionHistory || {},
+          testResults: serverData.testResults || [],
+          lastStudiedTopicId: serverData.lastStudiedTopicId || '',
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString()
+        };
+        saveUserProfile(profile);
+        return profile;
+      } else {
+        // Session invalid or expired on server
+        logoutUser();
+        return null;
+      }
+    }
+  } catch (err) {
+    console.warn('Backend session verification offline, using locally cached profile:', err);
+  }
+
+  return getCurrentUser();
+}
+
+/**
+ * Logout and invalidate session on server
+ */
+export function logoutUser(): void {
+  const token = getSessionToken();
+  if (token && APPS_SCRIPT_URL) {
+    fetch(APPS_SCRIPT_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify({
+        action: 'logout',
+        sessionToken: token
+      })
+    }).catch(e => console.warn('Logout server notice:', e));
+  }
+
+  setSessionToken(null);
+  if (typeof window !== 'undefined') {
+    localStorage.removeItem(STORAGE_KEY_CURRENT_USER);
+    window.dispatchEvent(new Event('preptake_storage_updated'));
+  }
+}
+
+/**
+ * Progress & Data Sync (Strictly scoped by sessionToken on the backend)
+ */
 export function toggleTopicCompletion(examId: ExamId, topicId: string): boolean {
   const user = getCurrentUser();
   const exists = user.completedTopicIds.includes(topicId);
@@ -213,7 +352,6 @@ export function toggleTopicCompletion(examId: ExamId, topicId: string): boolean 
 
   postToBackend({
     action: 'toggleTopicCompletion',
-    userId: user.id,
     examId,
     topicId,
     isCompleted: !exists
@@ -234,7 +372,6 @@ export function toggleBookmark(questionId: string): boolean {
 
   postToBackend({
     action: 'toggleBookmark',
-    userId: user.id,
     questionId
   });
 
@@ -255,7 +392,6 @@ export function recordQuestionAttempt(questionId: string, selectedOptionId: stri
 
   postToBackend({
     action: 'recordAnswer',
-    userId: user.id,
     questionId,
     selectedAnswer: selectedOptionId,
     isCorrect
@@ -279,7 +415,6 @@ export function recordTestResult(result: TestResult): void {
 
   postToBackend({
     action: 'recordTestAttempt',
-    userId: user.id,
     testResult: result
   });
 }
@@ -297,7 +432,6 @@ export function setSelectedExams(examIds: ExamId[]): void {
 
   postToBackend({
     action: 'saveExamSelections',
-    userId: user.id,
     examIds: user.selectedExams
   });
 }

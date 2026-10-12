@@ -3,16 +3,25 @@
  * ==============================================================================
  * PREPTAKE — Google Apps Script Backend
  * ==============================================================================
- * Connects directly to Google Sheet:
- * https://docs.google.com/spreadsheets/d/14bH4IMp7x5nR3TJEKzt5VtIAq-WivnEPhSFCIfZwfb0/edit
+ * Database: Google Sheet (Multi-Tab Persistent Storage)
  *
- * Provides:
- * 1. setupSheetStructure(): Run once in Apps Script Editor to scaffold all tabs and headers.
- * 2. doPost(): Secure API endpoint for login, user session, progress saving, test recording.
- * 3. doGet(): Read educational content, syllabi, questions, and health check.
+ * Supported Tabs:
+ * 1. Users          ['UserID', 'PasswordHash', 'Salt', 'FullName', 'ActiveStatus', 'CreatedAt']
+ * 2. Sessions       ['SessionToken', 'UserID', 'ExpiresAt', 'CreatedAt']
+ * 3. ExamSelections ['UserID', 'ExamID', 'SelectedAt']
+ * 4. Syllabus       ['ExamID', 'Subject', 'Chapter', 'Topic', 'Notes', 'Concepts', 'Formulas', 'Source', 'VerificationStatus']
+ * 5. Questions      ['QuestionID', 'ExamID', 'Subject', 'Chapter', 'Topic', 'Year', 'Paper', 'Question', 'OptionA', 'OptionB', 'OptionC', 'OptionD', 'OptionE', 'CorrectAnswer', 'Explanation', 'SourceURL', 'QuestionType', 'VerificationStatus']
+ * 6. UserProgress   ['UserID', 'ExamID', 'TopicID', 'CompletionStatus', 'LastStudiedAt']
+ * 7. UserAnswers    ['UserID', 'QuestionID', 'SelectedAnswer', 'IsCorrect', 'AttemptedAt']
+ * 8. TestAttempts   ['AttemptID', 'UserID', 'ExamID', 'TestID', 'Score', 'TotalMarks', 'Accuracy', 'TimeTaken', 'SubmittedAt', 'AnswersJSON']
+ * 9. Bookmarks      ['UserID', 'QuestionID', 'CreatedAt']
+ * 10. Tests         ['TestID', 'ExamID', 'Title', 'TestType', 'Duration', 'QuestionIDs', 'PublicationStatus']
  *
- * Password Security:
- * Uses salted SHA-256 hashing. Passwords and hashes are NEVER exposed in API responses.
+ * Security & Isolation:
+ * - Salted SHA-256 password hashing. Raw passwords & hashes NEVER returned to client.
+ * - Server-verified session tokens stored in 'Sessions' tab with 14-day expiry.
+ * - Identity derived strictly from sessionToken on all protected reads & writes.
+ * - Concurrency control with LockService.
  * ==============================================================================
  */
 
@@ -27,14 +36,15 @@ function getSpreadsheet() {
 }
 
 /**
- * Run this function once from the Apps Script Editor (Extensions -> Apps Script -> Select setupSheetStructure -> Run)
- * to initialize all necessary tabs, headers, and an initial test account.
+ * Run this function once from Apps Script Editor (or called automatically on missing tabs)
+ * to initialize all necessary tabs and headers while preserving existing records.
  */
 function setupSheetStructure() {
   const ss = getSpreadsheet();
   
   const tabs = {
-    'Users': ['UserID', 'PasswordHash', 'Salt', 'DisplayName', 'ActiveStatus', 'CreatedAt'],
+    'Users': ['UserID', 'PasswordHash', 'Salt', 'FullName', 'ActiveStatus', 'CreatedAt'],
+    'Sessions': ['SessionToken', 'UserID', 'ExpiresAt', 'CreatedAt'],
     'ExamSelections': ['UserID', 'ExamID', 'SelectedAt'],
     'Syllabus': ['ExamID', 'Subject', 'Chapter', 'Topic', 'Notes', 'Concepts', 'Formulas', 'Source', 'VerificationStatus'],
     'Questions': ['QuestionID', 'ExamID', 'Subject', 'Chapter', 'Topic', 'Year', 'Paper', 'Question', 'OptionA', 'OptionB', 'OptionC', 'OptionD', 'OptionE', 'CorrectAnswer', 'Explanation', 'SourceURL', 'QuestionType', 'VerificationStatus'],
@@ -63,7 +73,7 @@ function setupSheetStructure() {
     try { ss.deleteSheet(sheet1); } catch (e) {}
   }
 
-  // Add initial default accounts if Users sheet only has headers
+  // Ensure default candidate test accounts exist if Users sheet only has headers
   const usersSheet = ss.getSheetByName('Users');
   if (usersSheet && usersSheet.getLastRow() <= 1) {
     createUserInternal('nadeem', 'prep123', 'Nadeem');
@@ -71,7 +81,7 @@ function setupSheetStructure() {
     createUserInternal('student2', 'pass123', 'Candidate Two');
   }
 
-  Logger.log('PREPTAKE spreadsheet schema successfully set up!');
+  Logger.log('PREPTAKE schema setup/migration completed successfully!');
 }
 
 /**
@@ -90,6 +100,10 @@ function generateSalt() {
   return Utilities.getUuid().substring(0, 8);
 }
 
+function generateSessionToken() {
+  return 'pt_sess_' + Utilities.getUuid().replace(/-/g, '') + '_' + new Date().getTime().toString(36);
+}
+
 function createUserInternal(userId, plainPassword, displayName) {
   const ss = getSpreadsheet();
   const sheet = ss.getSheetByName('Users');
@@ -97,6 +111,84 @@ function createUserInternal(userId, plainPassword, displayName) {
   const hash = hashPassword(plainPassword, salt);
   const now = new Date().toISOString();
   sheet.appendRow([userId.trim().toLowerCase(), hash, salt, displayName.trim(), 'ACTIVE', now]);
+}
+
+/**
+ * Session Helpers
+ */
+function createSession(userId) {
+  const ss = getSpreadsheet();
+  let sheet = ss.getSheetByName('Sessions');
+  if (!sheet) {
+    sheet = ss.insertSheet('Sessions');
+    sheet.appendRow(['SessionToken', 'UserID', 'ExpiresAt', 'CreatedAt']);
+    sheet.getRange(1, 1, 1, 4).setFontWeight('bold').setBackground('#f1f5f9');
+  }
+  
+  const token = generateSessionToken();
+  const now = new Date();
+  // 14 days expiration
+  const expiresAt = new Date(now.getTime() + 14 * 24 * 60 * 60 * 1000).toISOString();
+  sheet.appendRow([token, userId.toLowerCase(), expiresAt, now.toISOString()]);
+  return { sessionToken: token, expiresAt: expiresAt };
+}
+
+function validateSession(sessionToken) {
+  if (!sessionToken || typeof sessionToken !== 'string') return null;
+  const token = sessionToken.trim();
+  if (!token) return null;
+
+  const ss = getSpreadsheet();
+  const sheet = ss.getSheetByName('Sessions');
+  if (!sheet || sheet.getLastRow() <= 1) return null;
+
+  const rows = sheet.getDataRange().getValues();
+  const now = new Date().getTime();
+  for (let i = 1; i < rows.length; i++) {
+    if (String(rows[i][0]).trim() === token) {
+      const userId = String(rows[i][1]).trim().toLowerCase();
+      const expiresAtStr = String(rows[i][2]);
+      const expiresAt = new Date(expiresAtStr).getTime();
+      if (isNaN(expiresAt) || expiresAt > now) {
+        return { userId: userId, expiresAt: expiresAtStr, rowIndex: i + 1 };
+      } else {
+        return null; // Expired session
+      }
+    }
+  }
+  return null;
+}
+
+function invalidateSession(sessionToken) {
+  if (!sessionToken) return false;
+  const token = sessionToken.trim();
+  const ss = getSpreadsheet();
+  const sheet = ss.getSheetByName('Sessions');
+  if (!sheet || sheet.getLastRow() <= 1) return false;
+
+  const lock = LockService.getScriptLock();
+  lock.waitLock(10000);
+  try {
+    const rows = sheet.getDataRange().getValues();
+    for (let i = rows.length - 1; i >= 1; i--) {
+      if (String(rows[i][0]).trim() === token) {
+        sheet.deleteRow(i + 1);
+        return true;
+      }
+    }
+    return false;
+  } finally {
+    lock.releaseLock();
+  }
+}
+
+function requireAuth(data) {
+  const sessionToken = data.sessionToken;
+  const session = validateSession(sessionToken);
+  if (!session) {
+    return { ok: false, response: responseJSON({ success: false, error: 'Unauthorized: Valid session required.' }) };
+  }
+  return { ok: true, userId: session.userId };
 }
 
 /**
@@ -113,8 +205,14 @@ function doPost(e) {
 
     const action = requestData.action;
 
-    if (action === 'login') {
+    if (action === 'register') {
+      return handleRegister(requestData);
+    } else if (action === 'login') {
       return handleLogin(requestData);
+    } else if (action === 'validateSession') {
+      return handleValidateSession(requestData);
+    } else if (action === 'logout') {
+      return handleLogout(requestData);
     } else if (action === 'getUserData') {
       return handleGetUserData(requestData);
     } else if (action === 'saveExamSelections') {
@@ -148,6 +246,82 @@ function doGet(e) {
   return responseJSON({ success: false, error: 'Unknown GET action' });
 }
 
+/**
+ * Action: register
+ */
+function handleRegister(data) {
+  const fullName = (data.fullName || '').trim();
+  const userId = (data.userId || '').trim().toLowerCase();
+  const password = data.password || '';
+  const confirmPassword = data.confirmPassword || '';
+
+  // Validation
+  if (!fullName || fullName.length < 2) {
+    return responseJSON({ success: false, error: 'Full Name must be at least 2 characters.' });
+  }
+  if (!userId || userId.length < 3 || userId.length > 30) {
+    return responseJSON({ success: false, error: 'User ID must be between 3 and 30 characters.' });
+  }
+  const idRegex = /^[a-z0-9_-]+$/;
+  if (!idRegex.test(userId)) {
+    return responseJSON({ success: false, error: 'User ID can only contain letters, numbers, hyphens, and underscores.' });
+  }
+  if (!password || password.length < 6) {
+    return responseJSON({ success: false, error: 'Password must be at least 6 characters long.' });
+  }
+  if (password !== confirmPassword) {
+    return responseJSON({ success: false, error: 'Password and Confirm Password do not match.' });
+  }
+
+  const lock = LockService.getScriptLock();
+  lock.waitLock(10000);
+  try {
+    const ss = getSpreadsheet();
+    let usersSheet = ss.getSheetByName('Users');
+    if (!usersSheet) {
+      setupSheetStructure();
+      usersSheet = ss.getSheetByName('Users');
+    }
+
+    // Check duplicate User ID (case-insensitive)
+    const rows = usersSheet.getDataRange().getValues();
+    for (let i = 1; i < rows.length; i++) {
+      const existingId = String(rows[i][0]).trim().toLowerCase();
+      if (existingId === userId) {
+        return responseJSON({ success: false, error: 'User ID "' + userId + '" is already registered. Please choose another or log in.' });
+      }
+    }
+
+    const salt = generateSalt();
+    const hash = hashPassword(password, salt);
+    const now = new Date().toISOString();
+
+    usersSheet.appendRow([userId, hash, salt, fullName, 'ACTIVE', now]);
+
+    // Create session token
+    const session = createSession(userId);
+    const userData = fetchUserRecords(userId);
+
+    return responseJSON({
+      success: true,
+      sessionToken: session.sessionToken,
+      user: {
+        userId: userId,
+        displayName: fullName
+      },
+      data: userData,
+      isNewUser: true
+    });
+  } catch (err) {
+    return responseJSON({ success: false, error: 'Registration failed: ' + err.toString() });
+  } finally {
+    lock.releaseLock();
+  }
+}
+
+/**
+ * Action: login
+ */
 function handleLogin(data) {
   const userId = (data.userId || '').trim().toLowerCase();
   const password = data.password || '';
@@ -157,13 +331,14 @@ function handleLogin(data) {
   }
 
   const ss = getSpreadsheet();
-  const usersSheet = ss.getSheetByName('Users');
+  let usersSheet = ss.getSheetByName('Users');
   if (!usersSheet || usersSheet.getLastRow() <= 1) {
-    return responseJSON({ success: false, error: 'User database not initialized.' });
+    setupSheetStructure();
+    usersSheet = ss.getSheetByName('Users');
   }
 
   const values = usersSheet.getDataRange().getValues();
-  // Header: UserID(0), PasswordHash(1), Salt(2), DisplayName(3), ActiveStatus(4)
+  // Header: UserID(0), PasswordHash(1), Salt(2), FullName/DisplayName(3), ActiveStatus(4)
   for (let i = 1; i < values.length; i++) {
     const rowUser = String(values[i][0]).trim().toLowerCase();
     if (rowUser === userId) {
@@ -178,10 +353,12 @@ function handleLogin(data) {
 
       const inputHash = hashPassword(password, salt);
       if (inputHash === storedHash) {
-        // Authenticated! Fetch user's isolated data
+        // Authenticated! Create server session
+        const session = createSession(userId);
         const userData = fetchUserRecords(userId);
         return responseJSON({
           success: true,
+          sessionToken: session.sessionToken,
           user: {
             userId: userId,
             displayName: displayName
@@ -194,13 +371,61 @@ function handleLogin(data) {
     }
   }
 
-  return responseJSON({ success: false, error: 'User not found. Please check your credentials.' });
+  return responseJSON({ success: false, error: 'Invalid User ID or Password.' });
 }
 
+/**
+ * Action: validateSession
+ */
+function handleValidateSession(data) {
+  const sessionToken = data.sessionToken;
+  const session = validateSession(sessionToken);
+  if (!session) {
+    return responseJSON({ success: false, error: 'Session expired or invalid.' });
+  }
+
+  const ss = getSpreadsheet();
+  const usersSheet = ss.getSheetByName('Users');
+  let displayName = session.userId;
+  if (usersSheet && usersSheet.getLastRow() > 1) {
+    const values = usersSheet.getDataRange().getValues();
+    for (let i = 1; i < values.length; i++) {
+      if (String(values[i][0]).trim().toLowerCase() === session.userId) {
+        displayName = String(values[i][3]) || session.userId;
+        break;
+      }
+    }
+  }
+
+  const userData = fetchUserRecords(session.userId);
+  return responseJSON({
+    success: true,
+    user: {
+      userId: session.userId,
+      displayName: displayName
+    },
+    data: userData
+  });
+}
+
+/**
+ * Action: logout
+ */
+function handleLogout(data) {
+  const sessionToken = data.sessionToken;
+  if (sessionToken) {
+    invalidateSession(sessionToken);
+  }
+  return responseJSON({ success: true, message: 'Logged out successfully.' });
+}
+
+/**
+ * Action: getUserData (Authenticated)
+ */
 function handleGetUserData(data) {
-  const userId = (data.userId || '').trim().toLowerCase();
-  if (!userId) return responseJSON({ success: false, error: 'Missing userId' });
-  const userData = fetchUserRecords(userId);
+  const auth = requireAuth(data);
+  if (!auth.ok) return auth.response;
+  const userData = fetchUserRecords(auth.userId);
   return responseJSON({ success: true, data: userData });
 }
 
@@ -300,16 +525,25 @@ function fetchUserRecords(userId) {
   };
 }
 
+/**
+ * Action: saveExamSelections (Authenticated)
+ */
 function handleSaveExamSelections(data) {
-  const userId = (data.userId || '').trim().toLowerCase();
+  const auth = requireAuth(data);
+  if (!auth.ok) return auth.response;
+  const userId = auth.userId;
   const examIds = data.examIds || [];
-  if (!userId) return responseJSON({ success: false, error: 'Missing userId' });
 
   const lock = LockService.getScriptLock();
   lock.waitLock(10000);
   try {
     const ss = getSpreadsheet();
-    const sheet = ss.getSheetByName('ExamSelections');
+    let sheet = ss.getSheetByName('ExamSelections');
+    if (!sheet) {
+      sheet = ss.insertSheet('ExamSelections');
+      sheet.appendRow(['UserID', 'ExamID', 'SelectedAt']);
+      sheet.getRange(1, 1, 1, 3).setFontWeight('bold').setBackground('#f1f5f9');
+    }
     
     // Remove existing rows for this user
     const rows = sheet.getDataRange().getValues();
@@ -331,18 +565,29 @@ function handleSaveExamSelections(data) {
   }
 }
 
+/**
+ * Action: toggleTopicCompletion (Authenticated)
+ */
 function handleToggleTopicCompletion(data) {
-  const userId = (data.userId || '').trim().toLowerCase();
+  const auth = requireAuth(data);
+  if (!auth.ok) return auth.response;
+  const userId = auth.userId;
   const examId = data.examId || '';
   const topicId = data.topicId || '';
   const isCompleted = Boolean(data.isCompleted);
-  if (!userId || !topicId) return responseJSON({ success: false, error: 'Missing userId or topicId' });
+  if (!topicId) return responseJSON({ success: false, error: 'Missing topicId' });
 
   const lock = LockService.getScriptLock();
   lock.waitLock(10000);
   try {
     const ss = getSpreadsheet();
-    const sheet = ss.getSheetByName('UserProgress');
+    let sheet = ss.getSheetByName('UserProgress');
+    if (!sheet) {
+      sheet = ss.insertSheet('UserProgress');
+      sheet.appendRow(['UserID', 'ExamID', 'TopicID', 'CompletionStatus', 'LastStudiedAt']);
+      sheet.getRange(1, 1, 1, 5).setFontWeight('bold').setBackground('#f1f5f9');
+    }
+
     const rows = sheet.getDataRange().getValues();
     let foundIndex = -1;
 
@@ -367,29 +612,49 @@ function handleToggleTopicCompletion(data) {
   }
 }
 
+/**
+ * Action: recordAnswer (Authenticated)
+ */
 function handleRecordAnswer(data) {
-  const userId = (data.userId || '').trim().toLowerCase();
+  const auth = requireAuth(data);
+  if (!auth.ok) return auth.response;
+  const userId = auth.userId;
   const questionId = data.questionId || '';
   const selectedAnswer = data.selectedAnswer || '';
   const isCorrect = Boolean(data.isCorrect);
-  if (!userId || !questionId) return responseJSON({ success: false, error: 'Missing parameters' });
+  if (!questionId) return responseJSON({ success: false, error: 'Missing questionId' });
 
   const ss = getSpreadsheet();
-  const sheet = ss.getSheetByName('UserAnswers');
+  let sheet = ss.getSheetByName('UserAnswers');
+  if (!sheet) {
+    sheet = ss.insertSheet('UserAnswers');
+    sheet.appendRow(['UserID', 'QuestionID', 'SelectedAnswer', 'IsCorrect', 'AttemptedAt']);
+    sheet.getRange(1, 1, 1, 5).setFontWeight('bold').setBackground('#f1f5f9');
+  }
   sheet.appendRow([userId, questionId, selectedAnswer, isCorrect, new Date().toISOString()]);
   return responseJSON({ success: true });
 }
 
+/**
+ * Action: recordTestAttempt (Authenticated)
+ */
 function handleRecordTestAttempt(data) {
-  const userId = (data.userId || '').trim().toLowerCase();
+  const auth = requireAuth(data);
+  if (!auth.ok) return auth.response;
+  const userId = auth.userId;
   const result = data.testResult;
-  if (!userId || !result) return responseJSON({ success: false, error: 'Missing testResult' });
+  if (!result) return responseJSON({ success: false, error: 'Missing testResult' });
 
   const lock = LockService.getScriptLock();
   lock.waitLock(10000);
   try {
     const ss = getSpreadsheet();
-    const sheet = ss.getSheetByName('TestAttempts');
+    let sheet = ss.getSheetByName('TestAttempts');
+    if (!sheet) {
+      sheet = ss.insertSheet('TestAttempts');
+      sheet.appendRow(['AttemptID', 'UserID', 'ExamID', 'TestID', 'Score', 'TotalMarks', 'Accuracy', 'TimeTaken', 'SubmittedAt', 'AnswersJSON']);
+      sheet.getRange(1, 1, 1, 10).setFontWeight('bold').setBackground('#f1f5f9');
+    }
     const attemptId = 'att_' + Utilities.getUuid().substring(0, 8);
     const answersJSON = JSON.stringify(result.answers || []);
 
@@ -412,16 +677,26 @@ function handleRecordTestAttempt(data) {
   }
 }
 
+/**
+ * Action: toggleBookmark (Authenticated)
+ */
 function handleToggleBookmark(data) {
-  const userId = (data.userId || '').trim().toLowerCase();
+  const auth = requireAuth(data);
+  if (!auth.ok) return auth.response;
+  const userId = auth.userId;
   const questionId = data.questionId || '';
-  if (!userId || !questionId) return responseJSON({ success: false, error: 'Missing parameters' });
+  if (!questionId) return responseJSON({ success: false, error: 'Missing questionId' });
 
   const lock = LockService.getScriptLock();
   lock.waitLock(10000);
   try {
     const ss = getSpreadsheet();
-    const sheet = ss.getSheetByName('Bookmarks');
+    let sheet = ss.getSheetByName('Bookmarks');
+    if (!sheet) {
+      sheet = ss.insertSheet('Bookmarks');
+      sheet.appendRow(['UserID', 'QuestionID', 'CreatedAt']);
+      sheet.getRange(1, 1, 1, 3).setFontWeight('bold').setBackground('#f1f5f9');
+    }
     const rows = sheet.getDataRange().getValues();
     let foundRow = -1;
 
@@ -444,6 +719,9 @@ function handleToggleBookmark(data) {
   }
 }
 
+/**
+ * Action: getQuestions (Public or Authenticated)
+ */
 function handleGetQuestions(examId) {
   const ss = getSpreadsheet();
   const sheet = ss.getSheetByName('Questions');

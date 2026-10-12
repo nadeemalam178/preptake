@@ -6,7 +6,7 @@ import Sidebar from './Sidebar';
 import Header from './Header';
 import MobileNav from './MobileNav';
 import { UserProfile } from '@/types';
-import { getCurrentUser, isSessionActive, logoutUser } from '@/lib/storage';
+import { getCurrentUser, isSessionActive, logoutUser, restoreSessionWithBackend } from '@/lib/storage';
 
 interface AppLayoutProps {
   children: React.ReactNode;
@@ -31,6 +31,15 @@ export default function AppLayout({ children, pageTitle }: AppLayoutProps) {
 
     const currentUser = getCurrentUser();
     setUser(currentUser);
+
+    // Verify and restore latest server records from Google Sheets
+    restoreSessionWithBackend().then(restored => {
+      if (!restored && pathname !== '/auth') {
+        router.push('/auth');
+      } else if (restored) {
+        setUser(restored);
+      }
+    });
 
     const handleStorageUpdate = () => {
       if (!isSessionActive() && pathname !== '/auth') {

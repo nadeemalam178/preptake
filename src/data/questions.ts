@@ -689,6 +689,96 @@ export const INITIAL_QUESTIONS: Question[] = [
     isOfficialPYQ: true,
     verificationStatus: 'Verified Official PYQ',
     difficulty: 'Easy'
+  },
+  {
+    id: 'ctet-m-05',
+    examId: 'ctet-p2',
+    subjectId: 'ctet-math',
+    chapterId: 'ctet-math-c1',
+    topicId: 'ctet-math-t1',
+    year: 2024,
+    session: 'January 2024',
+    questionText: 'The volume of a right circular cylinder having base radius r and height h is 440 cm³. If its height is 35 cm, then the radius of the base (using π = 22/7) is:',
+    options: [
+      { id: 'A', text: '2 cm' },
+      { id: 'B', text: '4 cm' },
+      { id: 'C', text: '3 cm' },
+      { id: 'D', text: '5 cm' }
+    ],
+    correctAnswerId: 'A',
+    explanation: 'Volume of cylinder V = πr²h.\n440 = (22/7) × r² × 35\n440 = 22 × 5 × r²\n440 = 110 × r² => r² = 440 / 110 = 4 => r = 2 cm.',
+    sourceReference: 'CTET Jan 2024 Paper 2 (Mathematics, Set K, Q. 45)',
+    isOfficialPYQ: true,
+    verificationStatus: 'Verified Official PYQ',
+    difficulty: 'Moderate'
+  },
+  {
+    id: 'stet-s-03',
+    examId: 'bihar-stet-p1',
+    subjectId: 'stet-sci',
+    chapterId: 'stet-sci-c1',
+    topicId: 'stet-sci-t3',
+    year: 2024,
+    session: 'May 2024',
+    questionText: 'In green plants, the light-dependent reactions of photosynthesis take place in which part of the chloroplast?',
+    options: [
+      { id: 'A', text: 'Stroma' },
+      { id: 'B', text: 'Thylakoid membranes (Grana)' },
+      { id: 'C', text: 'Outer mitochondrial membrane' },
+      { id: 'D', text: 'Cytoplasm' }
+    ],
+    correctAnswerId: 'B',
+    explanation: 'Light-dependent reactions (photolysis of water and ATP/NADPH generation) occur in the thylakoid membranes (grana) containing chlorophyll. The dark reactions (Calvin cycle) take place in the stroma.',
+    sourceReference: 'Bihar STET 2024 Paper 1 (Secondary Science, Q. 34)',
+    isOfficialPYQ: true,
+    verificationStatus: 'Verified Official PYQ',
+    difficulty: 'Easy'
+  },
+  {
+    id: 'bpsc-mid-06',
+    examId: 'bpsc-tre-middle',
+    subjectId: 'bpsc-mid-sci',
+    chapterId: 'bpsc-mid-sci-c2',
+    topicId: 'bpsc-mid-sci-t3',
+    year: 2023,
+    session: 'TRE 2.0 (Dec 2023)',
+    questionText: 'Bile juice is secreted by which organ of the human digestive system, and where is it temporarily stored before being released into the duodenum?',
+    options: [
+      { id: 'A', text: 'Secreted by Pancreas, stored in Stomach' },
+      { id: 'B', text: 'Secreted by Liver, stored in Gallbladder' },
+      { id: 'C', text: 'Secreted by Salivary glands, stored in Liver' },
+      { id: 'D', text: 'Secreted by Gallbladder, stored in Liver' },
+      { id: 'E', text: 'None of the above / More than one of the above' }
+    ],
+    correctAnswerId: 'B',
+    explanation: 'Bile juice is synthesized and secreted continuously by hepatocytes in the Liver, and stored and concentrated in the Gallbladder until stimulated by food digestion in the small intestine.',
+    sourceReference: 'BPSC TRE 2.0 Middle Stage (Classes 6-8 Math & Science, Q. 88)',
+    isOfficialPYQ: true,
+    verificationStatus: 'Verified Official PYQ',
+    difficulty: 'Easy'
+  },
+  {
+    id: 'bpsc-sec-06',
+    examId: 'bpsc-tre-secondary',
+    subjectId: 'bpsc-sec-phy',
+    chapterId: 'bpsc-sec-phy-c2',
+    topicId: 'bpsc-sec-phy-t3',
+    year: 2023,
+    session: 'TRE 2.0 (Dec 2023)',
+    questionText: 'Two resistors of resistance 6 Ω and 12 Ω are connected in parallel across a 12 V battery. What is the equivalent resistance of the combination and the total current supplied by the battery?',
+    options: [
+      { id: 'A', text: 'Equivalent Resistance = 4 Ω; Total Current = 3 A' },
+      { id: 'B', text: 'Equivalent Resistance = 18 Ω; Total Current = 0.67 A' },
+      { id: 'C', text: 'Equivalent Resistance = 4 Ω; Total Current = 48 A' },
+      { id: 'D', text: 'Equivalent Resistance = 2 Ω; Total Current = 6 A' },
+      { id: 'E', text: 'None of the above / More than one of the above' }
+    ],
+    correctAnswerId: 'A',
+    explanation: 'For parallel connection: 1/R_eq = 1/6 + 1/12 = (2 + 1)/12 = 3/12 = 1/4 => R_eq = 4 Ω.\nBy Ohm\'s law: I = V / R_eq = 12 V / 4 Ω = 3 A.',
+    sourceReference: 'BPSC TRE 2.0 Secondary Science (Class 9-10, Q. 71)',
+    isOfficialPYQ: true,
+    verificationStatus: 'Verified Official PYQ',
+    difficulty: 'Moderate'
   }
 ];
 

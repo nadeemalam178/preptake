@@ -2,53 +2,142 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { User, Lock, ArrowRight, AlertCircle, CheckCircle2, ShieldCheck, Table } from 'lucide-react';
-import { loginUserWithBackend, isSessionActive, getCurrentUser, SPREADSHEET_ID, APPS_SCRIPT_URL } from '@/lib/storage';
+import {
+  User,
+  Lock,
+  ArrowRight,
+  AlertCircle,
+  CheckCircle2,
+  Eye,
+  EyeOff,
+  UserPlus,
+  LogIn,
+  Table,
+  BadgeCheck
+} from 'lucide-react';
+import {
+  loginUserWithBackend,
+  registerUserWithBackend,
+  isSessionActive,
+  SPREADSHEET_ID
+} from '@/lib/storage';
 
 export default function AuthPage() {
   const router = useRouter();
   const [mounted, setMounted] = useState(false);
-  const [userId, setUserId] = useState('');
-  const [password, setPassword] = useState('');
+  const [authMode, setAuthMode] = useState<'login' | 'register'>('login');
+
+  // Login form state
+  const [loginUserId, setLoginUserId] = useState('');
+  const [loginPassword, setLoginPassword] = useState('');
+  const [showLoginPassword, setShowLoginPassword] = useState(false);
+
+  // Registration form state
+  const [regFullName, setRegFullName] = useState('');
+  const [regUserId, setRegUserId] = useState('');
+  const [regPassword, setRegPassword] = useState('');
+  const [regConfirmPassword, setRegConfirmPassword] = useState('');
+  const [showRegPassword, setShowRegPassword] = useState(false);
+  const [showRegConfirmPassword, setShowRegConfirmPassword] = useState(false);
+
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
+  const [successMsg, setSuccessMsg] = useState('');
 
   useEffect(() => {
     setMounted(true);
-    // If already logged in, redirect to study
     if (isSessionActive()) {
       router.push('/study');
     }
   }, [router]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const resetMessages = () => {
     setErrorMsg('');
+    setSuccessMsg('');
+  };
 
-    if (!userId.trim()) {
+  const handleModeSwitch = (mode: 'login' | 'register') => {
+    resetMessages();
+    setAuthMode(mode);
+  };
+
+  // Handle Login Submission
+  const handleLoginSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    resetMessages();
+
+    if (!loginUserId.trim()) {
       setErrorMsg('Please enter your User ID.');
       return;
     }
-    if (!password) {
+    if (!loginPassword) {
       setErrorMsg('Please enter your password.');
       return;
     }
 
     setLoading(true);
     try {
-      const res = await loginUserWithBackend(userId.trim(), password);
+      const res = await loginUserWithBackend(loginUserId.trim(), loginPassword);
       if (res.success && res.user) {
-        // Step 6: After successful login, immediately show examination selection if not chosen, else study
         if (!res.user.selectedExams || res.user.selectedExams.length === 0) {
           router.push('/exams');
         } else {
-          router.push('/exams');
+          router.push('/study');
         }
       } else {
         setErrorMsg(res.error || 'Invalid User ID or Password.');
       }
     } catch (err: any) {
       setErrorMsg(err.message || 'Login failed. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Handle Registration Submission
+  const handleRegisterSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    resetMessages();
+
+    const name = regFullName.trim();
+    const uid = regUserId.trim().toLowerCase();
+
+    if (!name || name.length < 2) {
+      setErrorMsg('Please enter your full name (minimum 2 characters).');
+      return;
+    }
+    if (!uid || uid.length < 3 || uid.length > 30) {
+      setErrorMsg('User ID must be between 3 and 30 characters.');
+      return;
+    }
+    const idRegex = /^[a-z0-9_-]+$/;
+    if (!idRegex.test(uid)) {
+      setErrorMsg('User ID can only contain lowercase letters, numbers, hyphens, and underscores.');
+      return;
+    }
+    if (!regPassword || regPassword.length < 6) {
+      setErrorMsg('Password must be at least 6 characters long.');
+      return;
+    }
+    if (regPassword !== regConfirmPassword) {
+      setErrorMsg('Password and Confirm Password do not match.');
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const res = await registerUserWithBackend(name, uid, regPassword, regConfirmPassword);
+      if (res.success && res.user) {
+        setSuccessMsg('Account created successfully! Redirecting to examination selection...');
+        // New user goes directly to examination selection
+        setTimeout(() => {
+          router.push('/exams');
+        }, 800);
+      } else {
+        setErrorMsg(res.error || 'Registration failed. Please try again.');
+      }
+    } catch (err: any) {
+      setErrorMsg(err.message || 'Registration failed. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -78,69 +167,240 @@ export default function AuthPage() {
           </p>
         </div>
 
-        {/* Login Card */}
+        {/* Auth Container Card */}
         <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-6 sm:p-8 shadow-xs space-y-5">
-          <div className="border-b border-slate-100 dark:border-slate-800 pb-3">
+          {/* Mode Switcher Tabs */}
+          <div className="grid grid-cols-2 p-1 bg-slate-100 dark:bg-slate-800 rounded-xl">
+            <button
+              type="button"
+              onClick={() => handleModeSwitch('login')}
+              className={`py-2 text-xs sm:text-sm font-semibold rounded-lg transition-all flex items-center justify-center gap-1.5 ${
+                authMode === 'login'
+                  ? 'bg-white dark:bg-slate-900 text-indigo-600 dark:text-indigo-400 shadow-xs'
+                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
+              }`}
+            >
+              <LogIn className="w-4 h-4" />
+              <span>Login</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => handleModeSwitch('register')}
+              className={`py-2 text-xs sm:text-sm font-semibold rounded-lg transition-all flex items-center justify-center gap-1.5 ${
+                authMode === 'register'
+                  ? 'bg-white dark:bg-slate-900 text-indigo-600 dark:text-indigo-400 shadow-xs'
+                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
+              }`}
+            >
+              <UserPlus className="w-4 h-4" />
+              <span>Create Account</span>
+            </button>
+          </div>
+
+          {/* Form Header */}
+          <div className="pb-1">
             <h2 className="text-base font-bold text-slate-900 dark:text-slate-100">
-              Student Login
+              {authMode === 'login' ? 'Candidate Login' : 'Create Student Account'}
             </h2>
             <p className="text-xs text-slate-500 mt-0.5">
-              Enter your credentials provided in the study spreadsheet.
+              {authMode === 'login'
+                ? 'Sign in with your User ID and Password to continue your study.'
+                : 'Register your candidate profile to start preparing right away.'}
             </p>
           </div>
 
+          {/* Error Message Alert */}
           {errorMsg && (
-            <div className="p-3 rounded-xl bg-rose-50 dark:bg-rose-950/50 border border-rose-200 dark:border-rose-900 text-xs font-semibold text-rose-700 dark:text-rose-300 flex items-center gap-2">
-              <AlertCircle className="w-4 h-4 shrink-0 text-rose-600" />
-              <span>{errorMsg}</span>
+            <div className="p-3 rounded-xl bg-rose-50 dark:bg-rose-950/50 border border-rose-200 dark:border-rose-900 text-xs font-semibold text-rose-700 dark:text-rose-300 flex items-start gap-2 animate-in fade-in">
+              <AlertCircle className="w-4 h-4 shrink-0 text-rose-600 mt-0.5" />
+              <span className="leading-relaxed">{errorMsg}</span>
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
-                User ID
-              </label>
-              <div className="relative">
-                <User className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
-                <input
-                  type="text"
-                  required
-                  autoFocus
-                  value={userId}
-                  onChange={e => setUserId(e.target.value)}
-                  placeholder="e.g. nadeem or student1"
-                  className="w-full pl-9 pr-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-sm text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all font-mono"
-                />
-              </div>
+          {/* Success Message Alert */}
+          {successMsg && (
+            <div className="p-3 rounded-xl bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-200 dark:border-emerald-900 text-xs font-semibold text-emerald-700 dark:text-emerald-300 flex items-start gap-2 animate-in fade-in">
+              <CheckCircle2 className="w-4 h-4 shrink-0 text-emerald-600 mt-0.5" />
+              <span className="leading-relaxed">{successMsg}</span>
             </div>
+          )}
 
-            <div>
-              <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
-                Password
-              </label>
-              <div className="relative">
-                <Lock className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
-                <input
-                  type="password"
-                  required
-                  value={password}
-                  onChange={e => setPassword(e.target.value)}
-                  placeholder="••••••••"
-                  className="w-full pl-9 pr-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-sm text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all"
-                />
+          {/* LOGIN FORM */}
+          {authMode === 'login' ? (
+            <form onSubmit={handleLoginSubmit} className="space-y-4">
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                  User ID
+                </label>
+                <div className="relative">
+                  <User className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                  <input
+                    type="text"
+                    required
+                    autoFocus
+                    value={loginUserId}
+                    onChange={e => setLoginUserId(e.target.value)}
+                    placeholder="e.g. nadeem or student1"
+                    className="w-full pl-9 pr-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-sm text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all font-mono"
+                  />
+                </div>
               </div>
-            </div>
 
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-sm shadow-xs transition-colors flex items-center justify-center gap-1.5 disabled:opacity-50 mt-2"
-            >
-              <span>{loading ? 'Verifying...' : 'Login to PrepTake'}</span>
-              <ArrowRight className="w-4 h-4" />
-            </button>
-          </form>
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                  Password
+                </label>
+                <div className="relative">
+                  <Lock className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                  <input
+                    type={showLoginPassword ? 'text' : 'password'}
+                    required
+                    value={loginPassword}
+                    onChange={e => setLoginPassword(e.target.value)}
+                    placeholder="••••••••"
+                    className="w-full pl-9 pr-10 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-sm text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowLoginPassword(!showLoginPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 focus:outline-none"
+                    aria-label={showLoginPassword ? 'Hide password' : 'Show password'}
+                  >
+                    {showLoginPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </button>
+                </div>
+              </div>
+
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-sm shadow-xs transition-colors flex items-center justify-center gap-1.5 disabled:opacity-50 mt-2"
+              >
+                <span>{loading ? 'Verifying with Google Sheets...' : 'Login to PrepTake'}</span>
+                <ArrowRight className="w-4 h-4" />
+              </button>
+
+              <div className="text-center pt-2">
+                <button
+                  type="button"
+                  onClick={() => handleModeSwitch('register')}
+                  className="text-xs text-indigo-600 dark:text-indigo-400 hover:underline font-medium"
+                >
+                  New candidate? Create a new account
+                </button>
+              </div>
+            </form>
+          ) : (
+            /* REGISTRATION FORM */
+            <form onSubmit={handleRegisterSubmit} className="space-y-3.5">
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                  Full Name
+                </label>
+                <div className="relative">
+                  <BadgeCheck className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                  <input
+                    type="text"
+                    required
+                    autoFocus
+                    value={regFullName}
+                    onChange={e => setRegFullName(e.target.value)}
+                    placeholder="e.g. Ramesh Kumar"
+                    className="w-full pl-9 pr-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-sm text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                  User ID
+                </label>
+                <div className="relative">
+                  <User className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                  <input
+                    type="text"
+                    required
+                    value={regUserId}
+                    onChange={e => setRegUserId(e.target.value.toLowerCase().replace(/\s+/g, ''))}
+                    placeholder="e.g. ramesh_bpsc"
+                    className="w-full pl-9 pr-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-sm text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all font-mono"
+                  />
+                </div>
+                <p className="text-[11px] text-slate-400 mt-1">
+                  Unique ID for login (letters, numbers, hyphens or underscores; min 3 chars).
+                </p>
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                  Password
+                </label>
+                <div className="relative">
+                  <Lock className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                  <input
+                    type={showRegPassword ? 'text' : 'password'}
+                    required
+                    value={regPassword}
+                    onChange={e => setRegPassword(e.target.value)}
+                    placeholder="At least 6 characters"
+                    className="w-full pl-9 pr-10 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-sm text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowRegPassword(!showRegPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 focus:outline-none"
+                    aria-label={showRegPassword ? 'Hide password' : 'Show password'}
+                  >
+                    {showRegPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </button>
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                  Confirm Password
+                </label>
+                <div className="relative">
+                  <Lock className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                  <input
+                    type={showRegConfirmPassword ? 'text' : 'password'}
+                    required
+                    value={regConfirmPassword}
+                    onChange={e => setRegConfirmPassword(e.target.value)}
+                    placeholder="Re-enter your password"
+                    className="w-full pl-9 pr-10 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-sm text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowRegConfirmPassword(!showRegConfirmPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 focus:outline-none"
+                    aria-label={showRegConfirmPassword ? 'Hide confirm password' : 'Show confirm password'}
+                  >
+                    {showRegConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </button>
+                </div>
+              </div>
+
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-sm shadow-xs transition-colors flex items-center justify-center gap-1.5 disabled:opacity-50 mt-2"
+              >
+                <span>{loading ? 'Creating Account in Google Sheets...' : 'Register & Select Examination'}</span>
+                <ArrowRight className="w-4 h-4" />
+              </button>
+
+              <div className="text-center pt-2">
+                <button
+                  type="button"
+                  onClick={() => handleModeSwitch('login')}
+                  className="text-xs text-indigo-600 dark:text-indigo-400 hover:underline font-medium"
+                >
+                  Already have an account? Sign in
+                </button>
+              </div>
+            </form>
+          )}
 
           {/* Backend Info Footer */}
           <div className="pt-4 border-t border-slate-100 dark:border-slate-800 space-y-2 text-[11px] text-slate-400">
@@ -150,7 +410,7 @@ export default function AuthPage() {
               <span className="font-mono text-[10px] truncate max-w-[170px]">{SPREADSHEET_ID}</span>
             </div>
             <p className="leading-relaxed">
-              Default candidate test accounts: <code className="font-mono text-slate-600 dark:text-slate-300 font-bold">nadeem</code> / <code className="font-mono text-slate-600 dark:text-slate-300">prep123</code> or <code className="font-mono text-slate-600 dark:text-slate-300 font-bold">student1</code> / <code className="font-mono text-slate-600 dark:text-slate-300">pass123</code>.
+              Default test accounts: <code className="font-mono text-slate-600 dark:text-slate-300 font-bold">nadeem</code> / <code className="font-mono text-slate-600 dark:text-slate-300">prep123</code> or <code className="font-mono text-slate-600 dark:text-slate-300 font-bold">student1</code> / <code className="font-mono text-slate-600 dark:text-slate-300">pass123</code>.
             </p>
           </div>
         </div>
