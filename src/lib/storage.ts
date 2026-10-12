@@ -179,7 +179,8 @@ export async function registerUserWithBackend(
   fullName: string,
   userId: string,
   plainPassword: string,
-  confirmPassword: string
+  confirmPassword: string,
+  selectedExams: ExamId[] = DEFAULT_EXAMS
 ): Promise<{ success: boolean; error?: string; user?: UserProfile; isNewUser?: boolean }> {
   const cleanName = fullName.trim();
   const cleanId = userId.trim().toLowerCase();
@@ -201,6 +202,9 @@ export async function registerUserWithBackend(
   if (plainPassword !== confirmPassword) {
     return { success: false, error: 'Password and Confirm Password do not match.' };
   }
+  if (!selectedExams || selectedExams.length === 0) {
+    return { success: false, error: 'Please select at least one examination to prepare for.' };
+  }
 
   if (!APPS_SCRIPT_URL) {
     return { success: false, error: 'Google Apps Script backend URL is not configured.' };
@@ -215,7 +219,8 @@ export async function registerUserWithBackend(
         fullName: cleanName,
         userId: cleanId,
         password: plainPassword,
-        confirmPassword: confirmPassword
+        confirmPassword: confirmPassword,
+        selectedExams: selectedExams
       })
     });
 
@@ -232,7 +237,9 @@ export async function registerUserWithBackend(
         id: resData.user.userId,
         name: resData.user.displayName || cleanName,
         email: `${resData.user.userId}@preptake.internal`,
-        selectedExams: DEFAULT_EXAMS,
+        selectedExams: (resData.data && resData.data.selectedExams && resData.data.selectedExams.length > 0)
+          ? resData.data.selectedExams
+          : selectedExams,
         completedTopicIds: [],
         bookmarkedQuestionIds: [],
         attemptedQuestionIds: [],

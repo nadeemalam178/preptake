@@ -1,0 +1,100 @@
+{
+  "sources": [
+    {
+      "sourceId": "ctet-jan-2024-p2",
+      "examId": "ctet-p2",
+      "examName": "CTET Paper 2 (Mathematics & Science)",
+      "year": 2024,
+      "session": "January 2024",
+      "organizer": "CBSE",
+      "paperSet": "Set K / L / M / N",
+      "officialAnswerKeyStatus": "Verified Official Answer Key Published by CBSE",
+      "sourceDocument": "CTET Jan 2024 Paper II Question Booklet & Final Answer Key",
+      "referenceUrl": "https://ctet.nic.in"
+    },
+    {
+      "sourceId": "ctet-aug-2023-p2",
+      "examId": "ctet-p2",
+      "examName": "CTET Paper 2 (Mathematics & Science)",
+      "year": 2023,
+      "session": "August 2023",
+      "organizer": "CBSE",
+      "paperSet": "Set E / F / G / H",
+      "officialAnswerKeyStatus": "Verified Official Answer Key Published by CBSE",
+      "sourceDocument": "CTET August 2023 Paper II Question Paper & Master Key",
+      "referenceUrl": "https://ctet.nic.in"
+    },
+    {
+      "sourceId": "bpsc-tre-3-middle",
+      "examId": "bpsc-tre-middle",
+      "examName": "BPSC TRE 3.0 (Class 6-8 Math & Science)",
+      "year": 2024,
+      "session": "March / July 2024 (Re-exam)",
+      "organizer": "BPSC",
+      "paperSet": "Booklet Series A",
+      "officialAnswerKeyStatus": "Final Verified Answer Key Published by BPSC",
+      "sourceDocument": "BPSC TRE 3.0 Middle School (Class 6-8) Mathematics & Science Question Booklet",
+      "referenceUrl": "https://www.bpsc.bih.nic.in"
+    },
+    {
+      "sourceId": "bpsc-tre-2-middle",
+      "examId": "bpsc-tre-middle",
+      "examName": "BPSC TRE 2.0 (Class 6-8 Math & Science)",
+      "year": 2023,
+      "session": "December 2023",
+      "organizer": "BPSC",
+      "paperSet": "Booklet Series A",
+      "officialAnswerKeyStatus": "Final Verified Answer Key Published by BPSC",
+      "sourceDocument": "BPSC TRE 2.0 Middle Stage (Classes 6-8) Mathematics and Science Question Paper",
+      "referenceUrl": "https://www.bpsc.bih.nic.in"
+    },
+    {
+      "sourceId": "bpsc-tre-3-secondary",
+      "examId": "bpsc-tre-secondary",
+      "examName": "BPSC TRE 3.0 (Class 9-10 Science)",
+      "year": 2024,
+      "session": "March / July 2024",
+      "organizer": "BPSC",
+      "paperSet": "Booklet Series A",
+      "officialAnswerKeyStatus": "Final Verified Answer Key Published by BPSC",
+      "sourceDocument": "BPSC TRE 3.0 Secondary Stage (Class 9-10) Science Booklet",
+      "referenceUrl": "https://www.bpsc.bih.nic.in"
+    },
+    {
+      "sourceId": "bpsc-tre-1-secondary",
+      "examId": "bpsc-tre-secondary",
+      "examName": "BPSC TRE 1.0 (Class 9-10 Science)",
+      "year": 2023,
+      "session": "August 2023",
+      "organizer": "BPSC",
+      "paperSet": "Booklet Series A",
+      "officialAnswerKeyStatus": "Final Verified Answer Key Published by BPSC",
+      "sourceDocument": "BPSC TRE 1.0 Secondary Stage (Class 9-10) Science Booklet",
+      "referenceUrl": "https://www.bpsc.bih.nic.in"
+    },
+    {
+      "sourceId": "stet-2024-p1",
+      "examId": "bihar-stet-p1",
+      "examName": "Bihar STET Paper 1 (Secondary Science & Math)",
+      "year": 2024,
+      "session": "May 2024",
+      "organizer": "BSEB",
+      "paperSet": "Shift 1 / Shift 2",
+      "officialAnswerKeyStatus": "Verified Official Answer Key Published by BSEB",
+      "sourceDocument": "Bihar STET 2024 Paper 1 Question Paper & Master Key",
+      "referenceUrl": "https://secondary.biharboardonline.com"
+    },
+    {
+      "sourceId": "stet-2023-p1",
+      "examId": "bihar-stet-p1",
+      "examName": "Bihar STET Paper 1 (Secondary Science & Math)",
+      "year": 2023,
+      "session": "September 2023",
+      "organizer": "BSEB",
+      "paperSet": "Shift 1",
+      "officialAnswerKeyStatus": "Verified Official Answer Key Published by BSEB",
+      "sourceDocument": "Bihar STET 2023 Paper 1 Question Paper & Answer Key",
+      "referenceUrl": "https://secondary.biharboardonline.com"
+    }
+  ]
+}

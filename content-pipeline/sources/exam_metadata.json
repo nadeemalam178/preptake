@@ -1,0 +1,140 @@
+{
+  "examinations": [
+    {
+      "examId": "bpsc-tre-middle",
+      "canonicalId": "bpsc-tre4-6-8-maths-science",
+      "name": "BPSC TRE 4: Classes VI–VIII Mathematics and Science",
+      "officialBody": "Bihar Public Service Commission (BPSC)",
+      "classLevel": "Classes VI–VIII",
+      "totalMarks": 150,
+      "totalQuestions": 150,
+      "durationMinutes": 150,
+      "optionsPerQuestion": 5,
+      "hasFifthOption": true,
+      "negativeMarking": 0.0,
+      "structure": [
+        {
+          "part": "Part I",
+          "title": "Language (Qualifying)",
+          "questions": 30,
+          "description": "English (mandatory, 8 Qs) + Hindi/Urdu/Bengali (22 Qs). Qualifying mark: 30% (9 marks)."
+        },
+        {
+          "part": "Part II",
+          "title": "General Studies",
+          "questions": 40,
+          "description": "Elementary Mathematics, Mental Ability, General Awareness, General Science, Social Science, Indian National Movement, and Geography."
+        },
+        {
+          "part": "Part III",
+          "title": "Concerned Subject (Mathematics & Science)",
+          "questions": 80,
+          "description": "40 Questions of Secondary/Middle Mathematics and 40 Questions of Science (Physics, Chemistry, Biology)."
+        }
+      ],
+      "officialSource": "BPSC TRE Notification Advertisements (TRE 1.0, 2.0, 3.0 & 4.0)"
+    },
+    {
+      "examId": "bpsc-tre-secondary",
+      "canonicalId": "bpsc-tre4-9-10-science",
+      "name": "BPSC TRE 4: Classes IX–X Science",
+      "officialBody": "Bihar Public Service Commission (BPSC)",
+      "classLevel": "Classes IX–X",
+      "totalMarks": 150,
+      "totalQuestions": 150,
+      "durationMinutes": 150,
+      "optionsPerQuestion": 5,
+      "hasFifthOption": true,
+      "negativeMarking": 0.0,
+      "structure": [
+        {
+          "part": "Part I",
+          "title": "Language (Qualifying)",
+          "questions": 30,
+          "description": "English (8 Qs) + Hindi/Urdu/Bengali (22 Qs). Qualifying mark: 30% (9 marks)."
+        },
+        {
+          "part": "Part II",
+          "title": "General Studies",
+          "questions": 40,
+          "description": "Elementary Mathematics, General Science, Indian National Movement, Geography, and Current Events."
+        },
+        {
+          "part": "Part III",
+          "title": "Secondary Science (Physics, Chemistry, Biology)",
+          "questions": 80,
+          "description": "Classes 9–10 Physics (Mechanics, Optics, Electricity), Chemistry (Matter, Chemical Reactions, Carbon, Periodic Properties), Biology (Life Processes, Genetics, Ecology)."
+        }
+      ],
+      "officialSource": "BPSC Secondary Teacher Recruitment Scheme & Syllabus (Advt. No. 22/2024)"
+    },
+    {
+      "examId": "ctet-p2",
+      "canonicalId": "ctet-p2-maths-science",
+      "name": "CTET Paper 2: Mathematics and Science",
+      "officialBody": "Central Board of Secondary Education (CBSE)",
+      "classLevel": "Classes VI–VIII",
+      "totalMarks": 150,
+      "totalQuestions": 150,
+      "durationMinutes": 150,
+      "optionsPerQuestion": 4,
+      "hasFifthOption": false,
+      "negativeMarking": 0.0,
+      "structure": [
+        {
+          "part": "Part I",
+          "title": "Child Development and Pedagogy",
+          "questions": 30,
+          "description": "Development of elementary school child (15 Qs), Inclusive Education (5 Qs), Learning and Pedagogy (10 Qs)."
+        },
+        {
+          "part": "Part II",
+          "title": "Mathematics and Science",
+          "questions": 60,
+          "description": "Mathematics (30 Qs: 20 Content + 10 Pedagogical issues) and Science (30 Qs: 20 Content + 10 Pedagogical issues)."
+        },
+        {
+          "part": "Part III",
+          "title": "Language I",
+          "questions": 30,
+          "description": "Language Comprehension (15 Qs) and Pedagogy of Language Development (15 Qs)."
+        },
+        {
+          "part": "Part IV",
+          "title": "Language II",
+          "questions": 30,
+          "description": "Language Comprehension (15 Qs) and Pedagogy of Language Development (15 Qs)."
+        }
+      ],
+      "officialSource": "CBSE CTET Information Bulletin & Official Syllabus"
+    },
+    {
+      "examId": "bihar-stet-p1",
+      "canonicalId": "bihar-stet-p1",
+      "name": "Bihar STET Paper 1: Secondary Stage",
+      "officialBody": "Bihar School Examination Board (BSEB)",
+      "classLevel": "Classes IX–X",
+      "totalMarks": 150,
+      "totalQuestions": 150,
+      "durationMinutes": 150,
+      "optionsPerQuestion": 4,
+      "hasFifthOption": false,
+      "negativeMarking": 0.0,
+      "structure": [
+        {
+          "part": "Unit I",
+          "title": "Specified Subject (Secondary Mathematics / Science)",
+          "questions": 100,
+          "description": "Curriculum-aligned graduation/secondary level subject questions (Class 9-10 SCERT/NCERT)."
+        },
+        {
+          "part": "Unit II",
+          "title": "Art of Teaching & Other Skills",
+          "questions": 50,
+          "description": "Art of Teaching (30 Qs), General Knowledge, Environmental Science, Mathematical Aptitude, and Logical Reasoning (20 Qs)."
+        }
+      ],
+      "officialSource": "BSEB STET Official Scheme of Examination & Syllabus Guidelines"
+    }
+  ]
+}

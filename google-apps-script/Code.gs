@@ -225,6 +225,10 @@ function doPost(e) {
       return handleRecordTestAttempt(requestData);
     } else if (action === 'toggleBookmark') {
       return handleToggleBookmark(requestData);
+    } else if (action === 'importQuestionsBatch') {
+      return handleImportQuestionsBatch(requestData);
+    } else if (action === 'importTestsBatch') {
+      return handleImportTestsBatch(requestData);
     } else {
       return responseJSON({ success: false, error: 'Unknown action: ' + action });
     }
@@ -297,6 +301,20 @@ function handleRegister(data) {
     const now = new Date().toISOString();
 
     usersSheet.appendRow([userId, hash, salt, fullName, 'ACTIVE', now]);
+
+    // Save initial examination selections into ExamSelections sheet
+    const selectedExams = Array.isArray(data.selectedExams) && data.selectedExams.length > 0
+      ? data.selectedExams
+      : ['ctet-p2', 'bpsc-tre-middle'];
+    let examSheet = ss.getSheetByName('ExamSelections');
+    if (!examSheet) {
+      examSheet = ss.insertSheet('ExamSelections');
+      examSheet.appendRow(['UserID', 'ExamID', 'SelectedAt']);
+      examSheet.getRange(1, 1, 1, 3).setFontWeight('bold').setBackground('#f1f5f9');
+    }
+    selectedExams.forEach(function(examId) {
+      examSheet.appendRow([userId, String(examId).trim(), now]);
+    });
 
     // Create session token
     const session = createSession(userId);
@@ -758,6 +776,156 @@ function handleGetQuestions(examId) {
   }
 
   return responseJSON({ success: true, questions: questions });
+}
+
+/**
+ * Action: importQuestionsBatch (Batch Upsert for Content Pipeline)
+ */
+function handleImportQuestionsBatch(data) {
+  const lock = LockService.getScriptLock();
+  lock.waitLock(30000);
+  try {
+    const ss = getSpreadsheet();
+    let qSheet = ss.getSheetByName('Questions');
+    if (!qSheet) {
+      qSheet = ss.insertSheet('Questions');
+      qSheet.appendRow([
+        'QuestionID', 'ExamID', 'SubjectID', 'ChapterID', 'TopicID',
+        'Year', 'Session', 'QuestionText', 'OptionA', 'OptionB', 'OptionC', 'OptionD', 'OptionE',
+        'CorrectAnswer', 'Explanation', 'SourceReference', 'ContentType', 'VerificationStatus', 'Difficulty', 'ImportedAt'
+      ]);
+      qSheet.getRange(1, 1, 1, 20).setFontWeight('bold').setBackground('#f1f5f9');
+    }
+
+    let logSheet = ss.getSheetByName('ImportLogs');
+    if (!logSheet) {
+      logSheet = ss.insertSheet('ImportLogs');
+      logSheet.appendRow(['LogID', 'Type', 'BatchSize', 'Added', 'Updated', 'Timestamp']);
+      logSheet.getRange(1, 1, 1, 6).setFontWeight('bold').setBackground('#f1f5f9');
+    }
+
+    const items = data.questions || [];
+    const rows = qSheet.getDataRange().getValues();
+    const existingMap = {};
+    for (let i = 1; i < rows.length; i++) {
+      existingMap[String(rows[i][0]).trim()] = i + 1;
+    }
+
+    let added = 0;
+    let updated = 0;
+    const now = new Date().toISOString();
+
+    items.forEach(function(q) {
+      const qid = String(q.id || q.questionId).trim();
+      const optA = (q.options && q.options[0]) ? q.options[0].text : '';
+      const optB = (q.options && q.options[1]) ? q.options[1].text : '';
+      const optC = (q.options && q.options[2]) ? q.options[2].text : '';
+      const optD = (q.options && q.options[3]) ? q.options[3].text : '';
+      const optE = (q.options && q.options[4]) ? q.options[4].text : '';
+      const rowData = [
+        qid,
+        q.examId || '',
+        q.subjectId || '',
+        q.chapterId || '',
+        q.topicId || '',
+        q.year || '',
+        q.session || '',
+        q.questionText || '',
+        optA, optB, optC, optD, optE,
+        q.correctAnswerId || q.correctAnswer || '',
+        q.explanation || '',
+        q.sourceReference || q.sourceTitle || '',
+        q.contentType || '',
+        q.verificationStatus || '',
+        q.difficulty || '',
+        now
+      ];
+
+      if (existingMap[qid]) {
+        qSheet.getRange(existingMap[qid], 1, 1, 20).setValues([rowData]);
+        updated++;
+      } else {
+        qSheet.appendRow(rowData);
+        added++;
+      }
+    });
+
+    const logId = 'log_' + Utilities.getUuid().substring(0, 8);
+    logSheet.appendRow([logId, 'QuestionsBatch', items.length, added, updated, now]);
+
+    return responseJSON({ success: true, added: added, updated: updated, totalInBatch: items.length });
+  } catch (err) {
+    return responseJSON({ success: false, error: err.toString() });
+  } finally {
+    lock.releaseLock();
+  }
+}
+
+/**
+ * Action: importTestsBatch (Batch Upsert for Content Pipeline)
+ */
+function handleImportTestsBatch(data) {
+  const lock = LockService.getScriptLock();
+  lock.waitLock(30000);
+  try {
+    const ss = getSpreadsheet();
+    let tSheet = ss.getSheetByName('Tests');
+    if (!tSheet) {
+      tSheet = ss.insertSheet('Tests');
+      tSheet.appendRow(['TestID', 'ExamID', 'Type', 'Title', 'Description', 'DurationMinutes', 'QuestionCount', 'ImportedAt']);
+      tSheet.getRange(1, 1, 1, 8).setFontWeight('bold').setBackground('#f1f5f9');
+    }
+
+    let logSheet = ss.getSheetByName('ImportLogs');
+    if (!logSheet) {
+      logSheet = ss.insertSheet('ImportLogs');
+      logSheet.appendRow(['LogID', 'Type', 'BatchSize', 'Added', 'Updated', 'Timestamp']);
+      logSheet.getRange(1, 1, 1, 6).setFontWeight('bold').setBackground('#f1f5f9');
+    }
+
+    const items = data.tests || [];
+    const tRows = tSheet.getDataRange().getValues();
+    const existingTestMap = {};
+    for (let i = 1; i < tRows.length; i++) {
+      existingTestMap[String(tRows[i][0]).trim()] = i + 1;
+    }
+
+    let added = 0;
+    let updated = 0;
+    const now = new Date().toISOString();
+
+    items.forEach(function(t) {
+      const tid = String(t.id).trim();
+      const qCount = Array.isArray(t.questionIds) ? t.questionIds.length : 0;
+      const rowData = [
+        tid,
+        t.examId || '',
+        t.type || '',
+        t.title || '',
+        t.description || '',
+        t.durationMinutes || 0,
+        qCount,
+        now
+      ];
+
+      if (existingTestMap[tid]) {
+        tSheet.getRange(existingTestMap[tid], 1, 1, 8).setValues([rowData]);
+        updated++;
+      } else {
+        tSheet.appendRow(rowData);
+        added++;
+      }
+    });
+
+    const logId = 'log_' + Utilities.getUuid().substring(0, 8);
+    logSheet.appendRow([logId, 'TestsBatch', items.length, added, updated, now]);
+
+    return responseJSON({ success: true, added: added, updated: updated, totalInBatch: items.length });
+  } catch (err) {
+    return responseJSON({ success: false, error: err.toString() });
+  } finally {
+    lock.releaseLock();
+  }
 }
 
 function responseJSON(payload) {

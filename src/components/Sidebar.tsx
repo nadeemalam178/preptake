@@ -28,10 +28,10 @@ export default function Sidebar({ isOpen, onClose, user, onLogout }: SidebarProp
 
   const navItems = [
     { label: 'My Study', href: '/study', icon: BookOpen },
-    { label: 'Switch Examination', href: '/exams', icon: Layers },
     { label: 'Syllabus', href: '/syllabus', icon: GraduationCap },
+    { label: 'Practice Questions', href: '/practice', icon: CheckSquare },
     { label: 'Previous-Year Questions', href: '/pyqs', icon: FileQuestion },
-    { label: 'Practice Tests', href: '/tests', icon: CheckSquare },
+    { label: 'Mock Tests', href: '/tests', icon: Layers },
     { label: 'My Progress', href: '/progress', icon: TrendingUp },
   ];
 
@@ -85,11 +85,11 @@ export default function Sidebar({ isOpen, onClose, user, onLogout }: SidebarProp
             <div className="flex items-center justify-between text-xs text-slate-400 mb-1.5">
               <span>Active Tracks</span>
               <Link
-                href="/exams"
+                href="/settings"
                 onClick={onClose}
                 className="text-indigo-400 hover:text-indigo-300 font-medium text-[11px]"
               >
-                Switch
+                Manage in Settings
               </Link>
             </div>
             <div className="flex flex-wrap gap-1">
@@ -134,19 +134,24 @@ export default function Sidebar({ isOpen, onClose, user, onLogout }: SidebarProp
         {/* User Profile & Logout */}
         <div className="p-3 border-t border-slate-800 bg-slate-950/40">
           <div className="flex items-center justify-between px-2 py-1.5">
-            <div className="flex items-center gap-2.5 overflow-hidden max-w-[150px]">
-              <div className="w-8 h-8 rounded-full bg-slate-800 text-indigo-300 flex items-center justify-center font-bold text-xs uppercase shrink-0 border border-slate-700">
+            <Link
+              href="/settings"
+              onClick={onClose}
+              className="flex items-center gap-2.5 overflow-hidden max-w-[150px] group"
+              title="View Profile & Manage Tracks"
+            >
+              <div className="w-8 h-8 rounded-full bg-slate-800 text-indigo-300 flex items-center justify-center font-bold text-xs uppercase shrink-0 border border-slate-700 group-hover:border-indigo-500 transition-colors">
                 {currentUser?.name?.charAt(0) || 'U'}
               </div>
               <div className="truncate">
-                <p className="text-xs font-semibold text-slate-200 truncate">
+                <p className="text-xs font-semibold text-slate-200 group-hover:text-white truncate">
                   {currentUser?.name || 'Candidate'}
                 </p>
                 <p className="text-[10px] text-slate-400 font-mono truncate">
-                  ID: {currentUser?.id || 'candidate'}
+                  Profile & Settings
                 </p>
               </div>
-            </div>
+            </Link>
 
             <button
               onClick={onLogout}

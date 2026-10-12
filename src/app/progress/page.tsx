@@ -67,13 +67,20 @@ export default function ProgressPage() {
   // Topics needing revision (relevant topics that are not yet marked completed)
   const pendingTopics = relevantTopics.filter(t => !user.completedTopicIds.includes(t.id));
 
-  // Bookmarked questions
-  const bookmarkedQuestions = INITIAL_QUESTIONS.filter(q => user.bookmarkedQuestionIds.includes(q.id));
+  // Bookmarked questions strictly belonging to user's selected exams
+  const bookmarkedQuestions = INITIAL_QUESTIONS.filter(q => user.bookmarkedQuestionIds.includes(q.id) && user.selectedExams.includes(q.examId));
 
-  // Overall accuracy
-  const totalCorrect = Object.values(user.questionHistory).filter(h => h.isCorrect).length;
-  const totalAttempted = Object.keys(user.questionHistory).length;
+  // Overall accuracy strictly belonging to user's selected exams
+  const relevantHistoryEntries = Object.entries(user.questionHistory).filter(([qid]) => {
+    const q = INITIAL_QUESTIONS.find(item => item.id === qid);
+    return q && user.selectedExams.includes(q.examId);
+  });
+  const totalCorrect = relevantHistoryEntries.filter(([_, h]) => h.isCorrect).length;
+  const totalAttempted = relevantHistoryEntries.length;
   const overallAccuracy = totalAttempted > 0 ? Math.round((totalCorrect / totalAttempted) * 100) : 0;
+  
+  // Test attempts strictly belonging to user's selected exams
+  const relevantTestResults = user.testResults.filter(r => user.selectedExams.includes(r.examId));
 
   return (
     <AppLayout pageTitle="My Progress">
@@ -195,9 +202,9 @@ export default function ProgressPage() {
             </Link>
           </div>
 
-          {user.testResults.length > 0 ? (
+          {relevantTestResults.length > 0 ? (
             <div className="space-y-2.5">
-              {user.testResults.slice(0, 5).map(result => (
+              {relevantTestResults.slice(0, 5).map(result => (
                 <div
                   key={result.id}
                   className="p-3.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-850/50 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs"

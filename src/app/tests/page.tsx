@@ -29,7 +29,12 @@ export default function TestsPage() {
   };
 
   const filteredTests = useMemo(() => {
+    if (!user) return [];
     return PRACTICE_TESTS.filter(test => {
+      // Must strictly belong to user's saved examinations
+      if (!user.selectedExams.includes(test.examId)) {
+        return false;
+      }
       if (selectedType !== 'all' && test.type !== selectedType) {
         return false;
       }
@@ -38,7 +43,7 @@ export default function TestsPage() {
       }
       return true;
     });
-  }, [selectedType, selectedExam]);
+  }, [user, selectedType, selectedExam]);
 
   if (!mounted || !user) {
     return (
@@ -118,8 +123,8 @@ export default function TestsPage() {
             onChange={e => setSelectedExam(e.target.value)}
             className="px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs font-semibold text-slate-700 dark:text-slate-200 focus:outline-none"
           >
-            <option value="all">All Examinations</option>
-            {EXAMS.map(ex => (
+            <option value="all">All Selected Exams ({user.selectedExams.length})</option>
+            {EXAMS.filter(ex => user.selectedExams.includes(ex.id)).map(ex => (
               <option key={ex.id} value={ex.id}>
                 {ex.shortName}
               </option>

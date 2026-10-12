@@ -70,20 +70,32 @@ export type QuestionVerificationStatus =
 
 export interface Question {
   id: string;
+  questionId?: string;
   examId: ExamId;
   subjectId: string;
+  subject?: string;
+  classLevel?: string;
   chapterId: string;
+  chapter?: string;
   topicId?: string;
+  topic?: string;
   year?: number;
   session?: string; // e.g. "January", "August", "TRE 2.0"
+  questionType?: string;
   questionText: string;
   options: QuestionOption[];
   correctAnswerId: string;
+  correctAnswer?: string;
   explanation: string;
   sourceReference: string; // e.g. "CTET Jan 2024 Paper 2 (Set K, Q. 65)"
+  sourceTitle?: string;
+  sourceType?: string;
+  sourceUrl?: string;
+  contentType?: string;
   isOfficialPYQ: boolean;
   verificationStatus: QuestionVerificationStatus;
-  difficulty?: 'Easy' | 'Moderate' | 'Challenging';
+  difficulty?: 'Easy' | 'Moderate' | 'Challenging' | 'easy' | 'medium' | 'hard';
+  language?: string;
 }
 
 export type TestType = 'topic' | 'chapter' | 'pyq-paper' | 'mock';

@@ -1,0 +1,6 @@
+# PrepTake Content Ingestion Pipeline Requirements
+# Uses Python standard libraries for core processing; optional libraries for PDF/OCR
+pypdf>=3.17.0
+pdfplumber>=0.10.0
+pytesseract>=0.3.10
+requests>=2.31.0

@@ -57,13 +57,21 @@ export default function StudyPage() {
   // Last studied topic
   const lastTopic = user.lastStudiedTopicId ? getTopicById(user.lastStudiedTopicId) : relevantTopics[0];
 
-  // Questions attempted count
-  const attemptedCount = user.attemptedQuestionIds.length;
-  const bookmarkedCount = user.bookmarkedQuestionIds.length;
+  // Questions attempted count strictly filtered by selected exams
+  const attemptedCount = user.attemptedQuestionIds.filter(qid => {
+    const q = INITIAL_QUESTIONS.find(item => item.id === qid);
+    return q && user.selectedExams.includes(q.examId);
+  }).length;
 
-  // Average test accuracy
-  const totalAccuracy = user.testResults.length > 0
-    ? Math.round(user.testResults.reduce((acc, r) => acc + r.accuracy, 0) / user.testResults.length)
+  const bookmarkedCount = user.bookmarkedQuestionIds.filter(qid => {
+    const q = INITIAL_QUESTIONS.find(item => item.id === qid);
+    return q && user.selectedExams.includes(q.examId);
+  }).length;
+
+  // Average test accuracy strictly filtered by selected exams
+  const relevantResults = user.testResults.filter(r => user.selectedExams.includes(r.examId));
+  const totalAccuracy = relevantResults.length > 0
+    ? Math.round(relevantResults.reduce((acc, r) => acc + r.accuracy, 0) / relevantResults.length)
     : 0;
 
   return (
@@ -81,7 +89,7 @@ export default function StudyPage() {
               Welcome back, {user.name}
             </h1>
             <p className="text-sm sm:text-base text-slate-600 dark:text-slate-400 mt-2 leading-relaxed">
-              Focused preparation platform for B.Ed teacher examinations with authentic syllabi and official previous-year questions.
+              Focused preparation platform for B.Ed teacher examinations with authentic syllabi, verified PYQs, and full-length mock tests.
             </p>
 
             {/* Active Tracks */}
@@ -91,10 +99,10 @@ export default function StudyPage() {
                 <ExamBadge key={ex} examId={ex} size="sm" />
               ))}
               <Link
-                href="/exams"
+                href="/settings"
                 className="text-xs font-semibold text-indigo-600 dark:text-indigo-400 hover:underline ml-1"
               >
-                + Edit Tracks
+                Manage Tracks
               </Link>
             </div>
           </div>
@@ -190,7 +198,7 @@ export default function StudyPage() {
               Your Examination Tracks
             </h2>
             <Link
-              href="/exams"
+              href="/settings"
               className="text-xs font-semibold text-indigo-600 dark:text-indigo-400 hover:underline"
             >
               Manage Tracks

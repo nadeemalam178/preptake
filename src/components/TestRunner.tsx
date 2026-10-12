@@ -31,6 +31,7 @@ export default function TestRunner({ test, onClose, onFinish }: TestRunnerProps)
     .map(id => INITIAL_QUESTIONS.find(q => q.id === id))
     .filter((q): q is Question => q !== undefined);
 
+  const [hasStarted, setHasStarted] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [selectedAnswers, setSelectedAnswers] = useState<Record<string, string>>({});
   const [markedForReview, setMarkedForReview] = useState<Record<string, boolean>>({});
@@ -42,7 +43,7 @@ export default function TestRunner({ test, onClose, onFinish }: TestRunnerProps)
 
   // Countdown timer
   useEffect(() => {
-    if (isSubmitted) return;
+    if (!hasStarted || isSubmitted) return;
 
     const timer = setInterval(() => {
       setTimeLeftSeconds(prev => {
@@ -57,7 +58,7 @@ export default function TestRunner({ test, onClose, onFinish }: TestRunnerProps)
     }, 1000);
 
     return () => clearInterval(timer);
-  }, [isSubmitted]);
+  }, [hasStarted, isSubmitted]);
 
   const currentQuestion = questions[currentIndex];
 
@@ -159,6 +160,135 @@ export default function TestRunner({ test, onClose, onFinish }: TestRunnerProps)
         >
           Return to Tests
         </button>
+      </div>
+    );
+  }
+
+  // Pre-test instructions screen before beginning
+  if (!hasStarted) {
+    const isBpsc = test.examId.startsWith('bpsc');
+    return (
+      <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-6 sm:p-8 space-y-6 max-w-3xl mx-auto shadow-xs">
+        {/* Header */}
+        <div className="flex items-start justify-between gap-4 pb-5 border-b border-slate-100 dark:border-slate-800">
+          <div>
+            <div className="flex items-center gap-2 mb-1.5">
+              <span className="text-xs font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800">
+                Official Examination Pattern
+              </span>
+              <span className="text-xs text-slate-400">•</span>
+              <span className="text-xs text-slate-500 font-medium">
+                {test.type === 'mock' ? 'Full Mock Test' : test.type === 'pyq-paper' ? 'Official PYQ Paper' : 'Targeted Practice'}
+              </span>
+            </div>
+            <h2 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-slate-100">
+              {test.title}
+            </h2>
+            <p className="text-xs sm:text-sm text-slate-500 mt-1">
+              {test.description}
+            </p>
+          </div>
+          <button
+            onClick={onClose}
+            className="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800"
+            title="Cancel"
+          >
+            <XCircle className="w-5 h-5" />
+          </button>
+        </div>
+
+        {/* Test Overview Metrics */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700">
+            <span className="text-xs text-slate-500 font-medium">Total Questions</span>
+            <p className="text-xl font-bold text-slate-900 dark:text-slate-100 mt-0.5">
+              {questions.length} Qs
+            </p>
+          </div>
+          <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700">
+            <span className="text-xs text-slate-500 font-medium">Total Duration</span>
+            <p className="text-xl font-bold text-slate-900 dark:text-slate-100 mt-0.5">
+              {test.durationMinutes} mins
+            </p>
+          </div>
+          <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700">
+            <span className="text-xs text-slate-500 font-medium">Marking Scheme</span>
+            <p className="text-xl font-bold text-emerald-600 dark:text-emerald-400 mt-0.5">
+              +1 / 0 Marks
+            </p>
+          </div>
+          <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700">
+            <span className="text-xs text-slate-500 font-medium">Format</span>
+            <p className="text-xl font-bold text-indigo-600 dark:text-indigo-400 mt-0.5">
+              {isBpsc ? '5 Options (A–E)' : '4 Options (A–D)'}
+            </p>
+          </div>
+        </div>
+
+        {/* Detailed Instructions */}
+        <div className="space-y-3 pt-2">
+          <h3 className="text-sm font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
+            <AlertCircle className="w-4 h-4 text-indigo-600" />
+            <span>Important Test Instructions & Guidelines</span>
+          </h3>
+          <ul className="space-y-2 text-xs text-slate-600 dark:text-slate-400 leading-relaxed list-disc pl-5">
+            <li>
+              <strong>Timer & Auto-Submission:</strong> The timer will begin immediately when you click <em>Begin Test</em>. The test will automatically submit when the allotted time of {test.durationMinutes} minutes expires.
+            </li>
+            <li>
+              <strong>Negative Marking:</strong> There is <strong>no negative marking</strong> in this examination. Attempting all questions is encouraged.
+            </li>
+            <li>
+              <strong>Question Options:</strong> {isBpsc ? 'As per BPSC official rules, questions contain 5 options (A, B, C, D, and E: "None of the above / More than one of the above").' : 'Questions have four choices (A, B, C, D) matching the official examination pattern.'}
+            </li>
+            <li>
+              <strong>Question Palette & Review:</strong> You can navigate freely between questions using the Question Palette. You may change your chosen answer or use the <em>Mark for Review</em> button at any stage.
+            </li>
+            <li>
+              <strong>Result Persistence:</strong> Upon submission, your score, accuracy, question breakdown, and detailed explanations will be calculated and synchronized with your Google Sheets record.
+            </li>
+          </ul>
+        </div>
+
+        {/* Color Legend */}
+        <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-850 border border-slate-200 dark:border-slate-800 text-xs space-y-2">
+          <p className="font-semibold text-slate-700 dark:text-slate-300">Question Palette Color Codes:</p>
+          <div className="flex flex-wrap items-center gap-4 text-slate-600 dark:text-slate-400 text-[11px]">
+            <span className="flex items-center gap-1.5">
+              <span className="w-3.5 h-3.5 rounded bg-emerald-600 inline-block" />
+              <span>Answered</span>
+            </span>
+            <span className="flex items-center gap-1.5">
+              <span className="w-3.5 h-3.5 rounded bg-amber-500 inline-block" />
+              <span>Marked for Review</span>
+            </span>
+            <span className="flex items-center gap-1.5">
+              <span className="w-3.5 h-3.5 rounded bg-slate-200 dark:bg-slate-700 inline-block" />
+              <span>Not Answered</span>
+            </span>
+            <span className="flex items-center gap-1.5">
+              <span className="w-3.5 h-3.5 rounded border-2 border-indigo-600 bg-white dark:bg-slate-900 inline-block" />
+              <span>Current Question</span>
+            </span>
+          </div>
+        </div>
+
+        {/* Action Buttons */}
+        <div className="flex items-center justify-between gap-3 pt-3 border-t border-slate-100 dark:border-slate-800">
+          <button
+            onClick={onClose}
+            className="py-2.5 px-4 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 font-semibold text-xs transition-colors"
+          >
+            Cancel & Return
+          </button>
+          <button
+            onClick={() => setHasStarted(true)}
+            className="py-2.5 px-6 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-xs shadow-xs transition-colors flex items-center gap-2"
+          >
+            <Timer className="w-4 h-4" />
+            <span>I Have Read the Instructions — Begin Test</span>
+          </button>
+        </div>
       </div>
     );
   }

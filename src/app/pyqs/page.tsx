@@ -34,10 +34,16 @@ function PyqsContent() {
   }, [examParam]);
 
   const filteredQuestions = useMemo(() => {
-    if (!user) return INITIAL_QUESTIONS;
+    if (!user) return [];
 
     return INITIAL_QUESTIONS.filter(q => {
-      // Exam filter
+      // Must be an official PYQ
+      if (!q.isOfficialPYQ) return false;
+
+      // Must belong to user's saved examinations
+      if (!user.selectedExams.includes(q.examId)) return false;
+
+      // Exam dropdown filter
       if (selectedExam !== 'all' && q.examId !== selectedExam) {
         return false;
       }
@@ -122,8 +128,8 @@ function PyqsContent() {
             onChange={e => setSelectedExam(e.target.value)}
             className="px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs font-semibold text-slate-700 dark:text-slate-200 focus:outline-none"
           >
-            <option value="all">All Examinations</option>
-            {EXAMS.map(exam => (
+            <option value="all">All Selected Exams ({user.selectedExams.length})</option>
+            {EXAMS.filter(exam => user.selectedExams.includes(exam.id)).map(exam => (
               <option key={exam.id} value={exam.id}>
                 {exam.shortName}
               </option>

@@ -105,13 +105,13 @@ function SyllabusContent() {
     return getTopicById(activeTopicId) || activeSubject?.chapters[0]?.topics[0];
   }, [activeTopicId, activeSubject]);
 
-  // Related PYQs for active topic
+  // Related questions for active topic strictly filtered by examId
   const relatedPYQs = useMemo(() => {
     if (!activeTopic) return [];
     if (activeTopic.pyqIds && activeTopic.pyqIds.length > 0) {
-      return INITIAL_QUESTIONS.filter(q => activeTopic.pyqIds?.includes(q.id));
+      return INITIAL_QUESTIONS.filter(q => activeTopic.pyqIds?.includes(q.id) && q.examId === activeTopic.examId);
     }
-    return INITIAL_QUESTIONS.filter(q => q.chapterId === activeTopic.chapterId || q.topicId === activeTopic.id);
+    return INITIAL_QUESTIONS.filter(q => (q.chapterId === activeTopic.chapterId || q.topicId === activeTopic.id) && q.examId === activeTopic.examId);
   }, [activeTopic]);
 
   if (!mounted || !user) {
@@ -133,14 +133,15 @@ function SyllabusContent() {
             Syllabus and Study Materials
           </h1>
           <p className="text-xs sm:text-sm text-slate-500 mt-0.5">
-            Hierarchical organization: Examination → Subject → Chapter → Topic with concise notes and authentic PYQs.
+            Hierarchical organization: Examination → Subject → Chapter → Topic with concise notes and verified questions.
           </p>
         </div>
 
-        {/* Exam Selection Pills */}
+        {/* Exam Selection Pills (Strictly filtered to user's saved tracks) */}
         <div className="flex flex-wrap gap-1.5 shrink-0">
-          {EXAMS.map(exam => {
-            const isUserExam = user.selectedExams.includes(exam.id);
+          {user.selectedExams.map(examId => {
+            const exam = getExamById(examId);
+            if (!exam) return null;
             const isCurrent = selectedExamId === exam.id;
 
             return (
@@ -150,9 +151,7 @@ function SyllabusContent() {
                 className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
                   isCurrent
                     ? 'bg-indigo-600 text-white shadow-xs'
-                    : isUserExam
-                    ? 'bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-300 dark:hover:bg-slate-700'
-                    : 'bg-slate-100 dark:bg-slate-850 text-slate-400 hover:text-slate-700 dark:hover:text-slate-300'
+                    : 'bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-300 dark:hover:bg-slate-700'
                 }`}
               >
                 {exam.shortName}
