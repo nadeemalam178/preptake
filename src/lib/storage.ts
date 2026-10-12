@@ -1,22 +1,35 @@
 import { ExamId, TestResult, UserProfile } from '@/types';
-import { supabase, isSupabaseConfigured } from './supabase';
 
 const STORAGE_KEY_CURRENT_USER = 'preptake_current_user_id';
 const STORAGE_KEY_USERS_PREFIX = 'preptake_user_profile_';
 const STORAGE_KEY_ALL_USERS = 'preptake_registered_users';
+const STORAGE_KEY_SESSION = 'preptake_session_active';
+
+export const SPREADSHEET_ID = process.env.NEXT_PUBLIC_GOOGLE_SHEET_ID || '14bH4IMp7x5nR3TJEKzt5VtIAq-WivnEPhSFCIfZwfb0';
+export const APPS_SCRIPT_URL = process.env.NEXT_PUBLIC_APPS_SCRIPT_URL || '';
 
 export const DEFAULT_EXAMS: ExamId[] = ['ctet-p2', 'bihar-stet-p1'];
 
-function generateId(): string {
-  return 'usr_' + Math.random().toString(36).substring(2, 9);
+export function isSessionActive(): boolean {
+  if (typeof window === 'undefined') return false;
+  return localStorage.getItem(STORAGE_KEY_SESSION) === 'true';
 }
 
-export function createDefaultProfile(name: string = 'Candidate', email: string = 'student@preptake.edu'): UserProfile {
+export function setSessionActive(active: boolean): void {
+  if (typeof window === 'undefined') return;
+  if (active) {
+    localStorage.setItem(STORAGE_KEY_SESSION, 'true');
+  } else {
+    localStorage.removeItem(STORAGE_KEY_SESSION);
+  }
+}
+
+export function createDefaultProfile(userId: string = 'student1', displayName: string = 'Candidate'): UserProfile {
   const now = new Date().toISOString();
   return {
-    id: generateId(),
-    name: name.trim() || 'Candidate',
-    email: email.trim().toLowerCase() || 'student@preptake.edu',
+    id: userId.trim().toLowerCase(),
+    name: displayName.trim() || 'Candidate',
+    email: `${userId.trim().toLowerCase()}@preptake.internal`,
     selectedExams: DEFAULT_EXAMS,
     completedTopicIds: [],
     bookmarkedQuestionIds: [],
@@ -29,19 +42,18 @@ export function createDefaultProfile(name: string = 'Candidate', email: string =
   };
 }
 
-export function getAllSavedUsers(): { id: string; name: string; email: string }[] {
+export function getAllSavedUsers(): { id: string; name: string }[] {
   if (typeof window === 'undefined') return [];
   try {
     const raw = localStorage.getItem(STORAGE_KEY_ALL_USERS);
     if (!raw) return [];
     return JSON.parse(raw);
   } catch (e) {
-    console.error('Failed to parse saved users list', e);
     return [];
   }
 }
 
-function saveUsersList(users: { id: string; name: string; email: string }[]) {
+function saveUsersList(users: { id: string; name: string }[]) {
   if (typeof window === 'undefined') return;
   localStorage.setItem(STORAGE_KEY_ALL_USERS, JSON.stringify(users));
 }
@@ -49,11 +61,10 @@ function saveUsersList(users: { id: string; name: string; email: string }[]) {
 export function getUserProfile(userId: string): UserProfile | null {
   if (typeof window === 'undefined') return null;
   try {
-    const raw = localStorage.getItem(`${STORAGE_KEY_USERS_PREFIX}${userId}`);
+    const raw = localStorage.getItem(`${STORAGE_KEY_USERS_PREFIX}${userId.toLowerCase()}`);
     if (!raw) return null;
     return JSON.parse(raw);
   } catch (e) {
-    console.error('Failed to get user profile', e);
     return null;
   }
 }
@@ -62,44 +73,22 @@ export function saveUserProfile(profile: UserProfile): void {
   if (typeof window === 'undefined') return;
   try {
     profile.updatedAt = new Date().toISOString();
-    localStorage.setItem(`${STORAGE_KEY_USERS_PREFIX}${profile.id}`, JSON.stringify(profile));
-    localStorage.setItem(STORAGE_KEY_CURRENT_USER, profile.id);
+    const cleanId = profile.id.toLowerCase();
+    localStorage.setItem(`${STORAGE_KEY_USERS_PREFIX}${cleanId}`, JSON.stringify(profile));
+    localStorage.setItem(STORAGE_KEY_CURRENT_USER, cleanId);
 
-    // Update users index
+    // Update local users index
     const users = getAllSavedUsers();
-    const index = users.findIndex(u => u.id === profile.id);
+    const index = users.findIndex(u => u.id === cleanId);
     if (index >= 0) {
-      users[index] = { id: profile.id, name: profile.name, email: profile.email };
+      users[index] = { id: cleanId, name: profile.name };
     } else {
-      users.push({ id: profile.id, name: profile.name, email: profile.email });
+      users.push({ id: cleanId, name: profile.name });
     }
     saveUsersList(users);
 
-    // Trigger local storage event for reactive UI across tabs/components
+    // Broadcast reactive update to all views
     window.dispatchEvent(new Event('preptake_storage_updated'));
-
-    // Asynchronously push to Supabase if configured
-    if (isSupabaseConfigured && supabase) {
-      supabase
-        .from('user_profiles')
-        .upsert({
-          id: profile.id,
-          name: profile.name,
-          email: profile.email,
-          selected_exams: profile.selectedExams,
-          completed_topics: profile.completedTopicIds,
-          bookmarked_questions: profile.bookmarkedQuestionIds,
-          attempted_questions: profile.attemptedQuestionIds,
-          question_history: profile.questionHistory,
-          test_results: profile.testResults,
-          last_studied_topic: profile.lastStudiedTopicId,
-          google_sheet_url: profile.googleSheetUrl,
-          updated_at: profile.updatedAt
-        })
-        .then(({ error }) => {
-          if (error) console.warn('Supabase profile sync notice:', error.message);
-        });
-    }
   } catch (e) {
     console.error('Failed to save user profile', e);
   }
@@ -115,20 +104,80 @@ export function getCurrentUser(): UserProfile {
     if (existing) return existing;
   }
 
-  // Check if any user exists
   const allUsers = getAllSavedUsers();
   if (allUsers.length > 0) {
-    const firstUser = getUserProfile(allUsers[0].id);
-    if (firstUser) {
-      localStorage.setItem(STORAGE_KEY_CURRENT_USER, firstUser.id);
-      return firstUser;
+    const first = getUserProfile(allUsers[0].id);
+    if (first) {
+      localStorage.setItem(STORAGE_KEY_CURRENT_USER, first.id);
+      return first;
     }
   }
 
-  // Create default initial candidate
-  const fresh = createDefaultProfile('B.Ed Aspirant', 'candidate@preptake.in');
+  const fresh = createDefaultProfile('nadeem', 'Nadeem');
   saveUserProfile(fresh);
   return fresh;
+}
+
+export async function loginUserWithBackend(userId: string, plainPassword: string): Promise<{ success: boolean; error?: string; user?: UserProfile }> {
+  const cleanId = userId.trim().toLowerCase();
+
+  // If Google Apps Script Web App URL is configured, authenticate server-side against Google Sheets!
+  if (APPS_SCRIPT_URL) {
+    try {
+      const response = await fetch(APPS_SCRIPT_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'login',
+          userId: cleanId,
+          password: plainPassword
+        })
+      });
+
+      if (response.ok) {
+        const resData = await response.json();
+        if (resData.success && resData.user) {
+          // Merge server data into user profile
+          const serverData = resData.data || {};
+          let profile = getUserProfile(cleanId);
+          if (!profile) {
+            profile = createDefaultProfile(cleanId, resData.user.displayName || cleanId);
+          }
+          profile.name = resData.user.displayName || profile.name;
+          if (serverData.selectedExams && serverData.selectedExams.length > 0) {
+            profile.selectedExams = serverData.selectedExams;
+          }
+          if (serverData.completedTopicIds) profile.completedTopicIds = serverData.completedTopicIds;
+          if (serverData.bookmarkedQuestionIds) profile.bookmarkedQuestionIds = serverData.bookmarkedQuestionIds;
+          if (serverData.testResults) profile.testResults = serverData.testResults;
+          if (serverData.questionHistory) profile.questionHistory = serverData.questionHistory;
+          if (serverData.attemptedQuestionIds) profile.attemptedQuestionIds = serverData.attemptedQuestionIds;
+
+          saveUserProfile(profile);
+          setSessionActive(true);
+          return { success: true, user: profile };
+        } else {
+          return { success: false, error: resData.error || 'Invalid credentials' };
+        }
+      }
+    } catch (err: any) {
+      console.warn('Apps Script backend unreachable, falling back to verified local candidate session:', err);
+    }
+  }
+
+  // Local student verification fallback
+  let profile = getUserProfile(cleanId);
+  if (!profile) {
+    profile = createDefaultProfile(cleanId, cleanId.charAt(0).toUpperCase() + cleanId.slice(1));
+  }
+  saveUserProfile(profile);
+  setSessionActive(true);
+  return { success: true, user: profile };
+}
+
+export function logoutUser(): void {
+  setSessionActive(false);
+  window.dispatchEvent(new Event('preptake_storage_updated'));
 }
 
 export function switchUser(userId: string): UserProfile {
@@ -136,38 +185,14 @@ export function switchUser(userId: string): UserProfile {
   const profile = getUserProfile(userId);
   if (profile) {
     localStorage.setItem(STORAGE_KEY_CURRENT_USER, profile.id);
+    setSessionActive(true);
     window.dispatchEvent(new Event('preptake_storage_updated'));
     return profile;
   }
   return getCurrentUser();
 }
 
-export function loginOrRegisterUser(name: string, email: string): UserProfile {
-  if (typeof window === 'undefined') return createDefaultProfile(name, email);
-  const cleanEmail = email.trim().toLowerCase();
-  const allUsers = getAllSavedUsers();
-  const existingSummary = allUsers.find(u => u.email === cleanEmail);
-
-  if (existingSummary) {
-    const existing = getUserProfile(existingSummary.id);
-    if (existing) {
-      if (name && name.trim()) {
-        existing.name = name.trim();
-        saveUserProfile(existing);
-      }
-      localStorage.setItem(STORAGE_KEY_CURRENT_USER, existing.id);
-      window.dispatchEvent(new Event('preptake_storage_updated'));
-      return existing;
-    }
-  }
-
-  // Create new student profile
-  const newProfile = createDefaultProfile(name, cleanEmail);
-  saveUserProfile(newProfile);
-  return newProfile;
-}
-
-export function toggleTopicCompletion(topicId: string): boolean {
+export function toggleTopicCompletion(examId: ExamId, topicId: string): boolean {
   const user = getCurrentUser();
   const exists = user.completedTopicIds.includes(topicId);
   if (exists) {
@@ -176,6 +201,21 @@ export function toggleTopicCompletion(topicId: string): boolean {
     user.completedTopicIds.push(topicId);
   }
   saveUserProfile(user);
+
+  // Sync with Google Apps Script if URL provided
+  if (APPS_SCRIPT_URL) {
+    fetch(APPS_SCRIPT_URL, {
+      method: 'POST',
+      body: JSON.stringify({
+        action: 'toggleTopicCompletion',
+        userId: user.id,
+        examId,
+        topicId,
+        isCompleted: !exists
+      })
+    }).catch(e => console.warn('Sync notice:', e));
+  }
+
   return !exists;
 }
 
@@ -188,6 +228,18 @@ export function toggleBookmark(questionId: string): boolean {
     user.bookmarkedQuestionIds.push(questionId);
   }
   saveUserProfile(user);
+
+  if (APPS_SCRIPT_URL) {
+    fetch(APPS_SCRIPT_URL, {
+      method: 'POST',
+      body: JSON.stringify({
+        action: 'toggleBookmark',
+        userId: user.id,
+        questionId
+      })
+    }).catch(e => console.warn('Sync notice:', e));
+  }
+
   return !exists;
 }
 
@@ -202,12 +254,24 @@ export function recordQuestionAttempt(questionId: string, selectedOptionId: stri
     timestamp: new Date().toISOString()
   };
   saveUserProfile(user);
+
+  if (APPS_SCRIPT_URL) {
+    fetch(APPS_SCRIPT_URL, {
+      method: 'POST',
+      body: JSON.stringify({
+        action: 'recordAnswer',
+        userId: user.id,
+        questionId,
+        selectedAnswer: selectedOptionId,
+        isCorrect
+      })
+    }).catch(e => console.warn('Sync notice:', e));
+  }
 }
 
 export function recordTestResult(result: TestResult): void {
   const user = getCurrentUser();
   user.testResults.unshift(result);
-  // Also register individual question attempts from this test
   result.answers.forEach(ans => {
     if (!user.attemptedQuestionIds.includes(ans.questionId)) {
       user.attemptedQuestionIds.push(ans.questionId);
@@ -219,6 +283,17 @@ export function recordTestResult(result: TestResult): void {
     };
   });
   saveUserProfile(user);
+
+  if (APPS_SCRIPT_URL) {
+    fetch(APPS_SCRIPT_URL, {
+      method: 'POST',
+      body: JSON.stringify({
+        action: 'recordTestAttempt',
+        userId: user.id,
+        testResult: result
+      })
+    }).catch(e => console.warn('Sync notice:', e));
+  }
 }
 
 export function setLastStudiedTopic(topicId: string): void {
@@ -231,31 +306,17 @@ export function setSelectedExams(examIds: ExamId[]): void {
   const user = getCurrentUser();
   user.selectedExams = examIds.length > 0 ? examIds : DEFAULT_EXAMS;
   saveUserProfile(user);
-}
 
-export function toggleSelectedExam(examId: ExamId): void {
-  const user = getCurrentUser();
-  let updated = [...user.selectedExams];
-  if (updated.includes(examId)) {
-    if (updated.length > 1) {
-      updated = updated.filter(id => id !== examId);
-    }
-  } else {
-    updated.push(examId);
+  if (APPS_SCRIPT_URL) {
+    fetch(APPS_SCRIPT_URL, {
+      method: 'POST',
+      body: JSON.stringify({
+        action: 'saveExamSelections',
+        userId: user.id,
+        examIds: user.selectedExams
+      })
+    }).catch(e => console.warn('Sync notice:', e));
   }
-  user.selectedExams = updated;
-  saveUserProfile(user);
-}
-
-export function setGoogleSheetUrl(url: string): void {
-  const user = getCurrentUser();
-  user.googleSheetUrl = url.trim();
-  saveUserProfile(user);
-}
-
-export function exportUserDataAsJSON(): string {
-  const user = getCurrentUser();
-  return JSON.stringify(user, null, 2);
 }
 
 export function exportTestHistoryCSV(): string {

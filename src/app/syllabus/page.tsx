@@ -89,7 +89,7 @@ function SyllabusContent() {
   };
 
   const handleToggleComplete = (topicId: string) => {
-    toggleTopicCompletion(topicId);
+    toggleTopicCompletion(selectedExamId, topicId);
     setUser(getCurrentUser());
   };
 

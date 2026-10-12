@@ -83,6 +83,7 @@ export interface Question {
   sourceReference: string; // e.g. "CTET Jan 2024 Paper 2 (Set K, Q. 65)"
   isOfficialPYQ: boolean;
   verificationStatus: QuestionVerificationStatus;
+  difficulty?: 'Easy' | 'Moderate' | 'Challenging';
 }
 
 export type TestType = 'topic' | 'chapter' | 'pyq-paper' | 'mock';

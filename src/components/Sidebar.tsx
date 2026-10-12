@@ -10,10 +10,8 @@ import {
   FileQuestion,
   CheckSquare,
   TrendingUp,
-  Settings,
   LogOut,
-  X,
-  Sparkles
+  X
 } from 'lucide-react';
 import { UserProfile } from '@/types';
 import { getCurrentUser } from '@/lib/storage';
@@ -30,9 +28,9 @@ export default function Sidebar({ isOpen, onClose, user, onLogout }: SidebarProp
 
   const navItems = [
     { label: 'My Study', href: '/study', icon: BookOpen },
-    { label: 'Examinations', href: '/exams', icon: Layers },
+    { label: 'Switch Examination', href: '/exams', icon: Layers },
     { label: 'Syllabus', href: '/syllabus', icon: GraduationCap },
-    { label: 'PYQs', href: '/pyqs', icon: FileQuestion },
+    { label: 'Previous-Year Questions', href: '/pyqs', icon: FileQuestion },
     { label: 'Practice Tests', href: '/tests', icon: CheckSquare },
     { label: 'My Progress', href: '/progress', icon: TrendingUp },
   ];
@@ -56,10 +54,10 @@ export default function Sidebar({ isOpen, onClose, user, onLogout }: SidebarProp
           isOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
       >
-        {/* Brand / Logo Header */}
+        {/* Brand Header */}
         <div className="flex items-center justify-between h-16 px-5 border-b border-slate-800">
           <Link href="/study" className="flex items-center gap-2.5 group" onClick={onClose}>
-            <div className="w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center text-white font-bold text-base shadow-sm group-hover:bg-indigo-500 transition-colors">
+            <div className="w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center text-white font-bold text-base shadow-sm">
               P
             </div>
             <div>
@@ -69,7 +67,7 @@ export default function Sidebar({ isOpen, onClose, user, onLogout }: SidebarProp
                   B.Ed
                 </span>
               </span>
-              <p className="text-[11px] text-slate-400 font-medium">Exam Prep Platform</p>
+              <p className="text-[11px] text-slate-400 font-medium">Exam Prep Website</p>
             </div>
           </Link>
           <button
@@ -91,7 +89,7 @@ export default function Sidebar({ isOpen, onClose, user, onLogout }: SidebarProp
                 onClick={onClose}
                 className="text-indigo-400 hover:text-indigo-300 font-medium text-[11px]"
               >
-                Change
+                Switch
               </Link>
             </div>
             <div className="flex flex-wrap gap-1">
@@ -127,53 +125,36 @@ export default function Sidebar({ isOpen, onClose, user, onLogout }: SidebarProp
                 }`}
               >
                 <Icon className={`w-4 h-4 shrink-0 ${isActive ? 'text-white' : 'text-slate-400'}`} />
-                <span>{item.label}</span>
+                <span className="truncate">{item.label}</span>
               </Link>
             );
           })}
         </nav>
 
-        {/* Bottom User Profile & Settings Area */}
+        {/* User Profile & Logout */}
         <div className="p-3 border-t border-slate-800 bg-slate-950/40">
-          <Link
-            href="/settings"
-            onClick={onClose}
-            className={`flex items-center justify-between px-3 py-2 rounded-lg text-xs font-medium text-slate-400 hover:text-slate-200 hover:bg-slate-850 mb-2 transition-colors ${
-              pathname === '/settings' ? 'text-indigo-300 bg-slate-800' : ''
-            }`}
-          >
-            <span className="flex items-center gap-2">
-              <Settings className="w-3.5 h-3.5" />
-              Settings & Google Sheet
-            </span>
-            <span className="text-[10px] text-slate-500">v1.0</span>
-          </Link>
-
-          <div className="flex items-center justify-between px-2 pt-2">
-            <Link
-              href="/auth"
-              onClick={onClose}
-              className="flex items-center gap-2.5 group overflow-hidden max-w-[170px]"
-            >
-              <div className="w-7 h-7 rounded-full bg-slate-700 text-slate-200 flex items-center justify-center font-bold text-xs uppercase shrink-0 border border-slate-600">
+          <div className="flex items-center justify-between px-2 py-1.5">
+            <div className="flex items-center gap-2.5 overflow-hidden max-w-[150px]">
+              <div className="w-8 h-8 rounded-full bg-slate-800 text-indigo-300 flex items-center justify-center font-bold text-xs uppercase shrink-0 border border-slate-700">
                 {currentUser?.name?.charAt(0) || 'U'}
               </div>
               <div className="truncate">
-                <p className="text-xs font-semibold text-slate-200 group-hover:text-indigo-300 truncate transition-colors">
+                <p className="text-xs font-semibold text-slate-200 truncate">
                   {currentUser?.name || 'Candidate'}
                 </p>
-                <p className="text-[10px] text-slate-400 truncate">
-                  {currentUser?.email || 'student@preptake.in'}
+                <p className="text-[10px] text-slate-400 font-mono truncate">
+                  ID: {currentUser?.id || 'candidate'}
                 </p>
               </div>
-            </Link>
+            </div>
 
             <button
               onClick={onLogout}
-              title="Logout / Switch Student"
-              className="p-1.5 text-slate-400 hover:text-rose-400 hover:bg-slate-800/80 rounded-md transition-colors"
+              title="Logout"
+              className="flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium text-slate-400 hover:text-rose-400 hover:bg-slate-850 rounded-lg transition-colors"
             >
-              <LogOut className="w-4 h-4" />
+              <LogOut className="w-3.5 h-3.5" />
+              <span>Logout</span>
             </button>
           </div>
         </div>
