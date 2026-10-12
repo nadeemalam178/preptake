@@ -6,7 +6,7 @@ const STORAGE_KEY_ALL_USERS = 'preptake_registered_users';
 const STORAGE_KEY_SESSION = 'preptake_session_active';
 
 export const SPREADSHEET_ID = process.env.NEXT_PUBLIC_GOOGLE_SHEET_ID || '14bH4IMp7x5nR3TJEKzt5VtIAq-WivnEPhSFCIfZwfb0';
-export const APPS_SCRIPT_URL = process.env.NEXT_PUBLIC_APPS_SCRIPT_URL || '';
+export const APPS_SCRIPT_URL = process.env.NEXT_PUBLIC_APPS_SCRIPT_URL || 'https://script.google.com/macros/s/AKfycbwaRRVTypYkRt6OKKqwXWqBUUIi1QIYgw0esp3Cp4YUit4aDA-MIYm-pOAVqy7q8m1e/exec';
 
 export const DEFAULT_EXAMS: ExamId[] = ['ctet-p2', 'bihar-stet-p1'];
 
@@ -126,7 +126,7 @@ export async function loginUserWithBackend(userId: string, plainPassword: string
     try {
       const response = await fetch(APPS_SCRIPT_URL, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
         body: JSON.stringify({
           action: 'login',
           userId: cleanId,
@@ -192,6 +192,15 @@ export function switchUser(userId: string): UserProfile {
   return getCurrentUser();
 }
 
+function postToBackend(payload: Record<string, any>): void {
+  if (!APPS_SCRIPT_URL || typeof window === 'undefined') return;
+  fetch(APPS_SCRIPT_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+    body: JSON.stringify(payload)
+  }).catch(e => console.warn('Google Sheet sync notice:', e));
+}
+
 export function toggleTopicCompletion(examId: ExamId, topicId: string): boolean {
   const user = getCurrentUser();
   const exists = user.completedTopicIds.includes(topicId);
@@ -202,19 +211,13 @@ export function toggleTopicCompletion(examId: ExamId, topicId: string): boolean 
   }
   saveUserProfile(user);
 
-  // Sync with Google Apps Script if URL provided
-  if (APPS_SCRIPT_URL) {
-    fetch(APPS_SCRIPT_URL, {
-      method: 'POST',
-      body: JSON.stringify({
-        action: 'toggleTopicCompletion',
-        userId: user.id,
-        examId,
-        topicId,
-        isCompleted: !exists
-      })
-    }).catch(e => console.warn('Sync notice:', e));
-  }
+  postToBackend({
+    action: 'toggleTopicCompletion',
+    userId: user.id,
+    examId,
+    topicId,
+    isCompleted: !exists
+  });
 
   return !exists;
 }
@@ -229,16 +232,11 @@ export function toggleBookmark(questionId: string): boolean {
   }
   saveUserProfile(user);
 
-  if (APPS_SCRIPT_URL) {
-    fetch(APPS_SCRIPT_URL, {
-      method: 'POST',
-      body: JSON.stringify({
-        action: 'toggleBookmark',
-        userId: user.id,
-        questionId
-      })
-    }).catch(e => console.warn('Sync notice:', e));
-  }
+  postToBackend({
+    action: 'toggleBookmark',
+    userId: user.id,
+    questionId
+  });
 
   return !exists;
 }
@@ -255,18 +253,13 @@ export function recordQuestionAttempt(questionId: string, selectedOptionId: stri
   };
   saveUserProfile(user);
 
-  if (APPS_SCRIPT_URL) {
-    fetch(APPS_SCRIPT_URL, {
-      method: 'POST',
-      body: JSON.stringify({
-        action: 'recordAnswer',
-        userId: user.id,
-        questionId,
-        selectedAnswer: selectedOptionId,
-        isCorrect
-      })
-    }).catch(e => console.warn('Sync notice:', e));
-  }
+  postToBackend({
+    action: 'recordAnswer',
+    userId: user.id,
+    questionId,
+    selectedAnswer: selectedOptionId,
+    isCorrect
+  });
 }
 
 export function recordTestResult(result: TestResult): void {
@@ -284,16 +277,11 @@ export function recordTestResult(result: TestResult): void {
   });
   saveUserProfile(user);
 
-  if (APPS_SCRIPT_URL) {
-    fetch(APPS_SCRIPT_URL, {
-      method: 'POST',
-      body: JSON.stringify({
-        action: 'recordTestAttempt',
-        userId: user.id,
-        testResult: result
-      })
-    }).catch(e => console.warn('Sync notice:', e));
-  }
+  postToBackend({
+    action: 'recordTestAttempt',
+    userId: user.id,
+    testResult: result
+  });
 }
 
 export function setLastStudiedTopic(topicId: string): void {
@@ -307,16 +295,11 @@ export function setSelectedExams(examIds: ExamId[]): void {
   user.selectedExams = examIds.length > 0 ? examIds : DEFAULT_EXAMS;
   saveUserProfile(user);
 
-  if (APPS_SCRIPT_URL) {
-    fetch(APPS_SCRIPT_URL, {
-      method: 'POST',
-      body: JSON.stringify({
-        action: 'saveExamSelections',
-        userId: user.id,
-        examIds: user.selectedExams
-      })
-    }).catch(e => console.warn('Sync notice:', e));
-  }
+  postToBackend({
+    action: 'saveExamSelections',
+    userId: user.id,
+    examIds: user.selectedExams
+  });
 }
 
 export function exportTestHistoryCSV(): string {
