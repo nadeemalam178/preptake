@@ -1,0 +1,45 @@
+import type { Metadata, Viewport } from 'next';
+import './globals.css';
+
+export const metadata: Metadata = {
+  title: 'PREPTAKE | B.Ed Exam Preparation Platform',
+  description: 'Modern, lightweight, mobile-first preparation platform for CTET Paper 2, Bihar STET Paper 1, and BPSC TRE 4.0 with authentic syllabi and official PYQs.',
+  keywords: [
+    'CTET Paper 2',
+    'Bihar STET Paper 1',
+    'BPSC TRE 4',
+    'B.Ed exam preparation',
+    'CTET Math and Science',
+    'Teacher Recruitment Exam'
+  ],
+  authors: [{ name: 'PREPTAKE Education' }]
+};
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 5,
+  themeColor: '#4f46e5'
+};
+
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return (
+    <html lang="en" className="scroll-smooth">
+      <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link
+          href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap"
+          rel="stylesheet"
+        />
+      </head>
+      <body className="min-h-screen bg-slate-50 dark:bg-slate-950 font-sans text-slate-900 dark:text-slate-100 antialiased selection:bg-indigo-500/20 selection:text-indigo-600">
+        {children}
+      </body>
+    </html>
+  );
+}
