@@ -1,4 +1,5 @@
 /**
+ * @OnlyCurrentDoc
  * ==============================================================================
  * PREPTAKE — Google Apps Script Backend
  * ==============================================================================
@@ -18,6 +19,10 @@
 const SHEET_ID = '14bH4IMp7x5nR3TJEKzt5VtIAq-WivnEPhSFCIfZwfb0';
 
 function getSpreadsheet() {
+  try {
+    const active = SpreadsheetApp.getActiveSpreadsheet();
+    if (active) return active;
+  } catch (e) {}
   return SpreadsheetApp.openById(SHEET_ID);
 }
 
