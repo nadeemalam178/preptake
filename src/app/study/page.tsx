@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
 import {
   BookOpen,
@@ -13,12 +13,16 @@ import {
   Award,
   Sparkles,
   Layers,
-  ChevronRight
+  ChevronRight,
+  Calculator,
+  ShieldCheck,
+  Check
 } from 'lucide-react';
 import AppLayout from '@/components/AppLayout';
 import ExamBadge from '@/components/ExamBadge';
+import FormulaSheetModal from '@/components/FormulaSheetModal';
 import { getCurrentUser } from '@/lib/storage';
-import { UserProfile, ExamId } from '@/types';
+import { UserProfile, ExamId, Subject } from '@/types';
 import { EXAMS, getExamById } from '@/data/exams';
 import { getAllTopics, getTopicById, SUBJECTS } from '@/data/syllabi';
 import { QUESTIONS } from '@/data/questions';
@@ -26,6 +30,7 @@ import { QUESTIONS } from '@/data/questions';
 export default function StudyPage() {
   const [user, setUser] = useState<UserProfile | null>(null);
   const [mounted, setMounted] = useState(false);
+  const [activeFormulaSubject, setActiveFormulaSubject] = useState<Subject | null>(null);
 
   useEffect(() => {
     setMounted(true);
@@ -35,6 +40,13 @@ export default function StudyPage() {
     window.addEventListener('preptake_storage_updated', handleUpdate);
     return () => window.removeEventListener('preptake_storage_updated', handleUpdate);
   }, []);
+
+  const allTopics = getAllTopics();
+
+  const userSubjects = useMemo(() => {
+    if (!user) return [];
+    return SUBJECTS.filter(s => user.selectedExams.includes(s.examId));
+  }, [user]);
 
   if (!mounted || !user) {
     return (
@@ -46,7 +58,6 @@ export default function StudyPage() {
     );
   }
 
-  const allTopics = getAllTopics();
   // Filter topics belonging to user's selected exams
   const relevantTopics = allTopics.filter(t => user.selectedExams.includes(t.examId));
   const completedCount = user.completedTopicIds.filter(id => relevantTopics.some(t => t.id === id)).length;
@@ -77,7 +88,7 @@ export default function StudyPage() {
   return (
     <AppLayout pageTitle="Home / My Study">
       <div className="space-y-6">
-        {/* Welcome Banner */}
+        {/* 1. Welcome Banner */}
         <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-6 sm:p-8 shadow-xs relative overflow-hidden">
           <div className="max-w-2xl">
             <div className="flex items-center gap-2 mb-2">
@@ -108,7 +119,7 @@ export default function StudyPage() {
           </div>
         </div>
 
-        {/* Quick Preparation Snapshot Metrics */}
+        {/* 2. Quick Preparation Snapshot Metrics */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
           <div className="p-4 sm:p-5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs">
             <div className="flex items-center justify-between text-slate-500 dark:text-slate-400 mb-2">
@@ -163,7 +174,7 @@ export default function StudyPage() {
           </div>
         </div>
 
-        {/* Resume Last Studied Topic Card */}
+        {/* 3. Resume Last Studied Topic Card */}
         {lastTopic && (
           <div className="bg-indigo-50/60 dark:bg-indigo-950/30 rounded-2xl border border-indigo-200 dark:border-indigo-900/60 p-5 sm:p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
@@ -191,7 +202,96 @@ export default function StudyPage() {
           </div>
         )}
 
-        {/* Selected Tracks Overview Section */}
+        {/* 4. Curriculum Study Modules (Grouped by Subject) */}
+        <div>
+          <div className="flex items-center justify-between mb-3.5">
+            <div>
+              <h2 className="text-base sm:text-lg font-bold text-slate-900 dark:text-slate-100">
+                Curriculum Study Modules
+              </h2>
+              <p className="text-xs text-slate-500">
+                Subject-wise modules aligned with verified NCERT & SCERT learning standards.
+              </p>
+            </div>
+            <Link
+              href="/syllabus"
+              className="text-xs font-semibold text-indigo-600 dark:text-indigo-400 hover:underline"
+            >
+              All Syllabi →
+            </Link>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {userSubjects.map(sub => {
+              const subTopics = sub.chapters.flatMap(c => c.topics);
+              const doneCount = subTopics.filter(t => user.completedTopicIds.includes(t.id)).length;
+              const subPct = subTopics.length > 0 ? Math.round((doneCount / subTopics.length) * 100) : 0;
+              const firstTopic = subTopics[0];
+              const formulaCount = subTopics.reduce((a, t) => a + (t.formulas?.length || 0), 0);
+
+              return (
+                <div
+                  key={sub.id}
+                  className="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs flex flex-col justify-between hover:border-indigo-300 dark:hover:border-indigo-700 transition-all"
+                >
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between gap-2">
+                      <ExamBadge examId={sub.examId} size="sm" />
+                      <span className="text-[11px] font-mono text-slate-400">{sub.code}</span>
+                    </div>
+
+                    <div>
+                      <h3 className="text-base font-bold text-slate-900 dark:text-slate-100">
+                        {sub.name}
+                      </h3>
+                      <p className="text-xs text-slate-500 mt-1 line-clamp-2">
+                        {sub.description}
+                      </p>
+                    </div>
+
+                    <div className="text-xs text-slate-600 dark:text-slate-400 space-y-1">
+                      <div className="flex items-center justify-between">
+                        <span>{sub.chapters.length} Chapters</span>
+                        <span>{subTopics.length} Topics</span>
+                      </div>
+                      <div className="w-full h-1.5 rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden">
+                        <div
+                          className="h-full bg-indigo-600 rounded-full transition-all duration-300"
+                          style={{ width: `${subPct}%` }}
+                        />
+                      </div>
+                      <div className="text-[11px] text-right text-slate-400">
+                        {doneCount}/{subTopics.length} completed ({subPct}%)
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-2 pt-4 mt-4 border-t border-slate-100 dark:border-slate-800">
+                    <Link
+                      href={firstTopic ? `/syllabus?topic=${firstTopic.id}` : `/syllabus?exam=${sub.examId}`}
+                      className="flex-1 text-center py-2 px-3 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold shadow-xs transition-colors"
+                    >
+                      Study Notes →
+                    </Link>
+
+                    {formulaCount > 0 && (
+                      <button
+                        onClick={() => setActiveFormulaSubject(sub)}
+                        className="py-2 px-3 rounded-xl border border-purple-200 dark:border-purple-800 bg-purple-50 dark:bg-purple-950/40 text-purple-700 dark:text-purple-300 hover:bg-purple-100 dark:hover:bg-purple-900/40 text-xs font-semibold transition-colors flex items-center gap-1"
+                        title="View formulas"
+                      >
+                        <Calculator className="w-3.5 h-3.5" />
+                        <span>Formulas</span>
+                      </button>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* 5. Selected Tracks Overview Section */}
         <div>
           <div className="flex items-center justify-between mb-3.5">
             <h2 className="text-base sm:text-lg font-bold text-slate-900 dark:text-slate-100">
@@ -219,7 +319,7 @@ export default function StudyPage() {
               return (
                 <div
                   key={examId}
-                  className="p-5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs flex flex-col justify-between"
+                  className="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs flex flex-col justify-between"
                 >
                   <div>
                     <div className="flex items-start justify-between gap-2 mb-2">
@@ -274,7 +374,7 @@ export default function StudyPage() {
           </div>
         </div>
 
-        {/* Quick Launch Study Modes */}
+        {/* 6. Quick Launch Study Modes */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2">
           <Link
             href="/pyqs"
@@ -322,6 +422,15 @@ export default function StudyPage() {
           </Link>
         </div>
       </div>
+
+      {/* Formula Sheet Modal */}
+      {activeFormulaSubject && (
+        <FormulaSheetModal
+          isOpen={!!activeFormulaSubject}
+          onClose={() => setActiveFormulaSubject(null)}
+          subject={activeFormulaSubject}
+        />
+      )}
     </AppLayout>
   );
 }

@@ -36,6 +36,8 @@ export interface Topic {
   pyqIds?: string[];
   verificationStatus: 'verified' | 'provisional';
   ncertReference?: string;
+  keyTakeaways?: string[];
+  estimatedMinutes?: number;
 }
 
 export interface Chapter {
