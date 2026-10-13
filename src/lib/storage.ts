@@ -34,7 +34,7 @@ export function isSessionActive(): boolean {
 /**
  * Profile helpers
  */
-export function createDefaultProfile(userId: string = 'student1', displayName: string = 'Candidate'): UserProfile {
+export function createDefaultProfile(userId: string = 'candidate', displayName: string = 'Candidate'): UserProfile {
   const now = new Date().toISOString();
   return {
     id: userId.trim().toLowerCase(),
@@ -46,7 +46,7 @@ export function createDefaultProfile(userId: string = 'student1', displayName: s
     attemptedQuestionIds: [],
     questionHistory: {},
     testResults: [],
-    lastStudiedTopicId: 'ctet-math-t1',
+    lastStudiedTopicId: '',
     createdAt: now,
     updatedAt: now
   };

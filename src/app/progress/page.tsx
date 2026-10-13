@@ -20,7 +20,7 @@ import { getCurrentUser, exportTestHistoryCSV } from '@/lib/storage';
 import { UserProfile } from '@/types';
 import { EXAMS, getExamById } from '@/data/exams';
 import { getAllTopics } from '@/data/syllabi';
-import { INITIAL_QUESTIONS } from '@/data/questions';
+import { QUESTIONS } from '@/data/questions';
 
 export default function ProgressPage() {
   const [user, setUser] = useState<UserProfile | null>(null);
@@ -68,11 +68,11 @@ export default function ProgressPage() {
   const pendingTopics = relevantTopics.filter(t => !user.completedTopicIds.includes(t.id));
 
   // Bookmarked questions strictly belonging to user's selected exams
-  const bookmarkedQuestions = INITIAL_QUESTIONS.filter(q => user.bookmarkedQuestionIds.includes(q.id) && user.selectedExams.includes(q.examId));
+  const bookmarkedQuestions = QUESTIONS.filter(q => user.bookmarkedQuestionIds.includes(q.id) && user.selectedExams.includes(q.examId));
 
   // Overall accuracy strictly belonging to user's selected exams
   const relevantHistoryEntries = Object.entries(user.questionHistory).filter(([qid]) => {
-    const q = INITIAL_QUESTIONS.find(item => item.id === qid);
+    const q = QUESTIONS.find(item => item.id === qid);
     return q && user.selectedExams.includes(q.examId);
   });
   const totalCorrect = relevantHistoryEntries.filter(([_, h]) => h.isCorrect).length;

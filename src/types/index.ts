@@ -63,8 +63,14 @@ export interface QuestionOption {
   text: string;
 }
 
+export type ProvenanceTier = 
+  | 'official_pyq_verified'
+  | 'coaching_pyq_unverified'
+  | 'original_practice';
+
 export type QuestionVerificationStatus = 
   | 'Verified Official PYQ'
+  | 'Unverified Coaching PYQ'
   | 'Curated Practice Drill'
   | 'Mock Question';
 
@@ -92,6 +98,7 @@ export interface Question {
   sourceType?: string;
   sourceUrl?: string;
   contentType?: string;
+  provenanceTier?: ProvenanceTier;
   isOfficialPYQ: boolean;
   verificationStatus: QuestionVerificationStatus;
   difficulty?: 'Easy' | 'Moderate' | 'Challenging' | 'easy' | 'medium' | 'hard';

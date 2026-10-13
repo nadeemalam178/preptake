@@ -2,13 +2,15 @@
 
 import React, { useState, useEffect, useMemo, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
-import { Search, Filter, BookOpen, CheckSquare, Bookmark, RotateCcw } from 'lucide-react';
+import { Search, BookOpen, Bookmark, RotateCcw, ChevronLeft, ChevronRight } from 'lucide-react';
 import AppLayout from '@/components/AppLayout';
 import QuestionCard from '@/components/QuestionCard';
 import { EXAMS } from '@/data/exams';
-import { INITIAL_QUESTIONS } from '@/data/questions';
+import { QUESTIONS } from '@/data/questions';
 import { ExamId, Question, UserProfile } from '@/types';
 import { getCurrentUser } from '@/lib/storage';
+
+const ITEMS_PER_PAGE = 20;
 
 function PracticeContent() {
   const searchParams = useSearchParams();
@@ -22,6 +24,7 @@ function PracticeContent() {
   const [selectedExam, setSelectedExam] = useState<string>(examParam || 'all');
   const [selectedDifficulty, setSelectedDifficulty] = useState<string>('all');
   const [onlyBookmarks, setOnlyBookmarks] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
 
   useEffect(() => {
     setMounted(true);
@@ -33,10 +36,15 @@ function PracticeContent() {
     }
   }, [examParam]);
 
+  // Reset page to 1 when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery, selectedExam, selectedDifficulty, onlyBookmarks]);
+
   const filteredQuestions = useMemo(() => {
     if (!user) return [];
 
-    return INITIAL_QUESTIONS.filter(q => {
+    return QUESTIONS.filter(q => {
       // Exclude official PYQs; show only curriculum practice questions
       if (q.isOfficialPYQ) return false;
 
@@ -49,7 +57,7 @@ function PracticeContent() {
       }
 
       // Difficulty filter
-      if (selectedDifficulty !== 'all' && q.difficulty !== selectedDifficulty) {
+      if (selectedDifficulty !== 'all' && q.difficulty?.toLowerCase() !== selectedDifficulty.toLowerCase()) {
         return false;
       }
 
@@ -64,7 +72,8 @@ function PracticeContent() {
         const matchesText = q.questionText.toLowerCase().includes(query);
         const matchesExpl = q.explanation.toLowerCase().includes(query);
         const matchesTopic = (q.topicId || '').toLowerCase().includes(query);
-        if (!matchesText && !matchesExpl && !matchesTopic) {
+        const matchesSubject = (q.subject || '').toLowerCase().includes(query);
+        if (!matchesText && !matchesExpl && !matchesTopic && !matchesSubject) {
           return false;
         }
       }
@@ -73,11 +82,24 @@ function PracticeContent() {
     });
   }, [user, selectedExam, selectedDifficulty, onlyBookmarks, searchQuery]);
 
+  const totalPages = Math.max(1, Math.ceil(filteredQuestions.length / ITEMS_PER_PAGE));
+  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+  const paginatedQuestions = filteredQuestions.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+
+  const handlePageChange = (page: number) => {
+    const targetPage = Math.max(1, Math.min(page, totalPages));
+    setCurrentPage(targetPage);
+    if (typeof window !== 'undefined') {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  };
+
   const handleResetFilters = () => {
     setSearchQuery('');
     setSelectedExam('all');
     setSelectedDifficulty('all');
     setOnlyBookmarks(false);
+    setCurrentPage(1);
   };
 
   if (!mounted || !user) {
@@ -110,7 +132,7 @@ function PracticeContent() {
             value={searchQuery}
             onChange={e => setSearchQuery(e.target.value)}
             placeholder="Search practice questions by keyword, topic, or concept..."
-            className="w-full pl-9 pr-4 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs sm:text-sm text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all"
+            className="w-full pl-9 pr-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs sm:text-sm text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all"
           />
         </div>
 
@@ -137,9 +159,9 @@ function PracticeContent() {
             className="px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs font-semibold text-slate-700 dark:text-slate-200 focus:outline-none"
           >
             <option value="all">All Difficulties</option>
-            <option value="Easy">Easy</option>
-            <option value="Moderate">Moderate</option>
-            <option value="Challenging">Challenging</option>
+            <option value="easy">Easy</option>
+            <option value="moderate">Moderate</option>
+            <option value="challenging">Challenging</option>
           </select>
 
           {/* Bookmarks Toggle */}
@@ -167,20 +189,40 @@ function PracticeContent() {
         </div>
       </div>
 
-      {/* Result Metrics */}
-      <div className="flex items-center justify-between px-1 text-xs text-slate-500 font-medium">
+      {/* Result Metrics & Top Pagination */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 px-1 text-xs text-slate-500 font-medium">
         <span>
-          Showing <strong>{filteredQuestions.length}</strong> practice questions
+          Showing <strong>{filteredQuestions.length > 0 ? `${startIndex + 1}–${Math.min(startIndex + ITEMS_PER_PAGE, filteredQuestions.length)}` : 0}</strong> of <strong>{filteredQuestions.length}</strong> practice questions
         </span>
-        <span className="text-[11px] text-slate-400">
-          Strictly filtered for your active tracks
-        </span>
+        {totalPages > 1 && (
+          <div className="flex items-center gap-2 self-end sm:self-auto">
+            <span className="text-[11px] text-slate-400">Page {currentPage} of {totalPages}</span>
+            <div className="flex items-center gap-1">
+              <button
+                onClick={() => handlePageChange(currentPage - 1)}
+                disabled={currentPage === 1}
+                className="p-1 rounded-md border border-slate-200 dark:border-slate-700 disabled:opacity-30 hover:bg-slate-100 dark:hover:bg-slate-800"
+                aria-label="Previous page"
+              >
+                <ChevronLeft className="w-4 h-4" />
+              </button>
+              <button
+                onClick={() => handlePageChange(currentPage + 1)}
+                disabled={currentPage === totalPages}
+                className="p-1 rounded-md border border-slate-200 dark:border-slate-700 disabled:opacity-30 hover:bg-slate-100 dark:hover:bg-slate-800"
+                aria-label="Next page"
+              >
+                <ChevronRight className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Questions Feed */}
-      {filteredQuestions.length > 0 ? (
+      {paginatedQuestions.length > 0 ? (
         <div className="space-y-4">
-          {filteredQuestions.map(question => (
+          {paginatedQuestions.map(question => (
             <QuestionCard
               key={question.id}
               question={question}
@@ -189,6 +231,37 @@ function PracticeContent() {
               showExamBadge={true}
             />
           ))}
+
+          {/* Bottom Pagination Bar */}
+          {totalPages > 1 && (
+            <div className="flex items-center justify-between pt-4 border-t border-slate-200 dark:border-slate-800">
+              <button
+                onClick={() => handlePageChange(currentPage - 1)}
+                disabled={currentPage === 1}
+                className="flex items-center gap-1 px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 text-xs font-semibold text-slate-700 dark:text-slate-200 disabled:opacity-30 hover:bg-slate-50 dark:hover:bg-slate-800"
+              >
+                <ChevronLeft className="w-4 h-4" />
+                <span>Previous</span>
+              </button>
+
+              <div className="flex items-center gap-1 text-xs">
+                <span className="text-slate-500">Page</span>
+                <span className="font-bold text-slate-800 dark:text-slate-200 px-2 py-1 rounded bg-slate-100 dark:bg-slate-800">
+                  {currentPage}
+                </span>
+                <span className="text-slate-500">of {totalPages}</span>
+              </div>
+
+              <button
+                onClick={() => handlePageChange(currentPage + 1)}
+                disabled={currentPage === totalPages}
+                className="flex items-center gap-1 px-4 py-2 rounded-xl bg-indigo-600 text-white text-xs font-semibold disabled:opacity-30 hover:bg-indigo-700 shadow-xs"
+              >
+                <span>Next</span>
+                <ChevronRight className="w-4 h-4" />
+              </button>
+            </div>
+          )}
         </div>
       ) : (
         <div className="p-12 text-center rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-3">

@@ -43,9 +43,9 @@ export default function Header({ onOpenSidebar, user, pageTitle }: HeaderProps) 
       <div className="flex items-center gap-2 sm:gap-3">
         {/* Switch Examination link */}
         <Link
-          href="/exams"
+          href="/settings"
           className="flex items-center gap-1.5 px-2.5 py-1 text-xs rounded-full bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-medium transition-colors border border-slate-200 dark:border-slate-700"
-          title="Switch active examination tracks"
+          title="Manage active examination tracks"
         >
           <Layers className="w-3.5 h-3.5 text-indigo-500" />
           <span className="hidden sm:inline">Tracks:</span>
@@ -65,9 +65,9 @@ export default function Header({ onOpenSidebar, user, pageTitle }: HeaderProps) 
 
         {/* Profile Avatar link */}
         <Link
-          href="/auth"
+          href="/settings"
           className="flex items-center justify-center w-8 h-8 rounded-full bg-indigo-100 dark:bg-indigo-900/60 text-indigo-700 dark:text-indigo-300 font-semibold text-xs border border-indigo-200 dark:border-indigo-800 hover:ring-2 hover:ring-indigo-400 transition-all"
-          title="Candidate Profile"
+          title="Candidate Profile & Settings"
         >
           {user?.name?.charAt(0) || <User className="w-4 h-4" />}
         </Link>

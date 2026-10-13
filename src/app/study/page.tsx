@@ -21,7 +21,7 @@ import { getCurrentUser } from '@/lib/storage';
 import { UserProfile, ExamId } from '@/types';
 import { EXAMS, getExamById } from '@/data/exams';
 import { getAllTopics, getTopicById, SUBJECTS } from '@/data/syllabi';
-import { INITIAL_QUESTIONS } from '@/data/questions';
+import { QUESTIONS } from '@/data/questions';
 
 export default function StudyPage() {
   const [user, setUser] = useState<UserProfile | null>(null);
@@ -59,12 +59,12 @@ export default function StudyPage() {
 
   // Questions attempted count strictly filtered by selected exams
   const attemptedCount = user.attemptedQuestionIds.filter(qid => {
-    const q = INITIAL_QUESTIONS.find(item => item.id === qid);
+    const q = QUESTIONS.find(item => item.id === qid);
     return q && user.selectedExams.includes(q.examId);
   }).length;
 
   const bookmarkedCount = user.bookmarkedQuestionIds.filter(qid => {
-    const q = INITIAL_QUESTIONS.find(item => item.id === qid);
+    const q = QUESTIONS.find(item => item.id === qid);
     return q && user.selectedExams.includes(q.examId);
   }).length;
 
@@ -213,7 +213,8 @@ export default function StudyPage() {
               const examTopics = allTopics.filter(t => t.examId === examId);
               const doneTopics = examTopics.filter(t => user.completedTopicIds.includes(t.id)).length;
               const pct = examTopics.length > 0 ? Math.round((doneTopics / examTopics.length) * 100) : 0;
-              const examQuestions = INITIAL_QUESTIONS.filter(q => q.examId === examId);
+              const examQuestions = QUESTIONS.filter(q => q.examId === examId);
+              const verifiedPyqs = examQuestions.filter(q => q.provenanceTier === 'official_pyq_verified' || q.verificationStatus === 'Verified Official PYQ').length;
 
               return (
                 <div
@@ -250,7 +251,7 @@ export default function StudyPage() {
 
                   <div className="flex items-center justify-between pt-4 mt-4 border-t border-slate-100 dark:border-slate-800/80">
                     <span className="text-xs text-slate-500">
-                      {examQuestions.length} Official PYQs available
+                      {examQuestions.length} Questions ({verifiedPyqs} Verified PYQs)
                     </span>
                     <div className="flex items-center gap-2">
                       <Link

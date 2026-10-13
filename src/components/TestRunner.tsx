@@ -16,7 +16,7 @@ import {
   AlertCircle
 } from 'lucide-react';
 import { PracticeTest, Question, TestResult } from '@/types';
-import { INITIAL_QUESTIONS } from '@/data/questions';
+import { QUESTIONS } from '@/data/questions';
 import { recordTestResult } from '@/lib/storage';
 
 interface TestRunnerProps {
@@ -28,7 +28,7 @@ interface TestRunnerProps {
 export default function TestRunner({ test, onClose, onFinish }: TestRunnerProps) {
   // Load questions for this test
   const questions: Question[] = test.questionIds
-    .map(id => INITIAL_QUESTIONS.find(q => q.id === id))
+    .map(id => QUESTIONS.find(q => q.id === id))
     .filter((q): q is Question => q !== undefined);
 
   const [hasStarted, setHasStarted] = useState(false);
@@ -40,6 +40,7 @@ export default function TestRunner({ test, onClose, onFinish }: TestRunnerProps)
   const [testResult, setTestResult] = useState<TestResult | null>(null);
   const [showConfirmSubmit, setShowConfirmSubmit] = useState(false);
   const [timeSpent, setTimeSpent] = useState(0);
+  const [showPaletteOnMobile, setShowPaletteOnMobile] = useState(false);
 
   // Countdown timer
   useEffect(() => {
@@ -554,57 +555,73 @@ export default function TestRunner({ test, onClose, onFinish }: TestRunnerProps)
         </div>
 
         {/* Question Navigation Palette (1 col) */}
-        <div className="p-5 bg-slate-50/60 dark:bg-slate-850/60 flex flex-col justify-between">
+        <div className="p-4 sm:p-5 bg-slate-50/60 dark:bg-slate-850/60 flex flex-col justify-between border-t lg:border-t-0">
           <div>
-            <h4 className="text-xs font-bold uppercase tracking-wider text-slate-500 mb-3">
-              Question Palette
-            </h4>
-
-            <div className="grid grid-cols-5 gap-2">
-              {questions.map((q, idx) => {
-                const isSelected = selectedAnswers[q.id];
-                const isCurrent = currentIndex === idx;
-                const isMarked = markedForReview[q.id];
-
-                let pillColor = 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300';
-                if (isSelected) {
-                  pillColor = 'bg-emerald-600 border-emerald-600 text-white font-bold';
-                } else if (isMarked) {
-                  pillColor = 'bg-purple-600 border-purple-600 text-white font-bold';
-                }
-
-                return (
-                  <button
-                    key={q.id}
-                    onClick={() => setCurrentIndex(idx)}
-                    className={`h-9 rounded-lg text-xs font-semibold border flex items-center justify-center transition-all ${pillColor} ${
-                      isCurrent ? 'ring-2 ring-indigo-500 ring-offset-2 dark:ring-offset-slate-900 scale-105' : ''
-                    }`}
-                  >
-                    {idx + 1}
-                  </button>
-                );
-              })}
+            <div className="flex items-center justify-between mb-3">
+              <h4 className="text-xs font-bold uppercase tracking-wider text-slate-500">
+                Question Palette ({questions.length} Qs)
+              </h4>
+              <button
+                type="button"
+                onClick={() => setShowPaletteOnMobile(!showPaletteOnMobile)}
+                className="lg:hidden text-xs text-indigo-600 dark:text-indigo-400 font-semibold"
+              >
+                {showPaletteOnMobile ? 'Hide Grid ▲' : 'Show Grid ▼'}
+              </button>
             </div>
 
-            {/* Legend */}
-            <div className="mt-6 space-y-2 text-[11px] text-slate-500">
-              <div className="flex items-center gap-2">
-                <span className="w-3 h-3 rounded bg-emerald-600" />
-                <span>Answered ({Object.keys(selectedAnswers).length})</span>
+            <div className={`space-y-4 ${showPaletteOnMobile ? 'block' : 'hidden lg:block'}`}>
+              <div className="max-h-72 sm:max-h-80 overflow-y-auto pr-1 grid grid-cols-5 sm:grid-cols-6 lg:grid-cols-5 gap-2">
+                {questions.map((q, idx) => {
+                  const isSelected = selectedAnswers[q.id];
+                  const isCurrent = currentIndex === idx;
+                  const isMarked = markedForReview[q.id];
+
+                  let pillColor = 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300';
+                  if (isSelected) {
+                    pillColor = 'bg-emerald-600 border-emerald-600 text-white font-bold';
+                  } else if (isMarked) {
+                    pillColor = 'bg-purple-600 border-purple-600 text-white font-bold';
+                  }
+
+                  return (
+                    <button
+                      key={q.id}
+                      onClick={() => {
+                        setCurrentIndex(idx);
+                        if (typeof window !== 'undefined' && window.innerWidth < 1024) {
+                          setShowPaletteOnMobile(false);
+                        }
+                      }}
+                      className={`h-9 rounded-lg text-xs font-semibold border flex items-center justify-center transition-all ${pillColor} ${
+                        isCurrent ? 'ring-2 ring-indigo-500 ring-offset-2 dark:ring-offset-slate-900 scale-105' : ''
+                      }`}
+                    >
+                      {idx + 1}
+                    </button>
+                  );
+                })}
               </div>
-              <div className="flex items-center gap-2">
-                <span className="w-3 h-3 rounded bg-purple-600" />
-                <span>Marked for Review ({Object.values(markedForReview).filter(Boolean).length})</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="w-3 h-3 rounded bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700" />
-                <span>Unattempted ({questions.length - Object.keys(selectedAnswers).length})</span>
+
+              {/* Legend */}
+              <div className="space-y-2 text-[11px] text-slate-500 pt-2 border-t border-slate-200 dark:border-slate-800">
+                <div className="flex items-center gap-2">
+                  <span className="w-3 h-3 rounded bg-emerald-600 shrink-0" />
+                  <span>Answered ({Object.keys(selectedAnswers).length})</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="w-3 h-3 rounded bg-purple-600 shrink-0" />
+                  <span>Marked for Review ({Object.values(markedForReview).filter(Boolean).length})</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="w-3 h-3 rounded bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 shrink-0" />
+                  <span>Unattempted ({questions.length - Object.keys(selectedAnswers).length})</span>
+                </div>
               </div>
             </div>
           </div>
 
-          <div className="pt-6">
+          <div className="pt-4 lg:pt-6">
             <button
               onClick={() => setShowConfirmSubmit(true)}
               className="w-full py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 dark:bg-indigo-600 dark:hover:bg-indigo-700 text-white font-semibold text-xs shadow-xs transition-colors"

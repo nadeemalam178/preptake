@@ -1,9 +1,21 @@
 import type { Metadata, Viewport } from 'next';
 import './globals.css';
 
+const basePath = process.env.NEXT_PUBLIC_BASE_PATH || (process.env.NODE_ENV === 'production' ? '/preptake' : '');
+
 export const metadata: Metadata = {
   title: 'PREPTAKE | B.Ed Exam Preparation Platform',
   description: 'Modern, lightweight, mobile-first preparation platform for CTET Paper 2, Bihar STET Paper 1, and BPSC TRE 4.0 with authentic syllabi and official PYQs.',
+  manifest: `${basePath}/manifest.json`,
+  icons: {
+    icon: `${basePath}/icon.svg`,
+    apple: `${basePath}/icon-192.png`,
+  },
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'default',
+    title: 'PrepTake'
+  },
   keywords: [
     'CTET Paper 2',
     'Bihar STET Paper 1',
@@ -30,6 +42,12 @@ export default function RootLayout({
   return (
     <html lang="en" className="scroll-smooth">
       <head>
+        <link rel="icon" href={`${basePath}/icon.svg`} type="image/svg+xml" />
+        <link rel="apple-touch-icon" href={`${basePath}/icon-192.png`} />
+        <link rel="manifest" href={`${basePath}/manifest.json`} />
+        <meta name="mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="default" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link

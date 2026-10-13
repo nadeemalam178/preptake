@@ -20,7 +20,7 @@ import ExamBadge from '@/components/ExamBadge';
 import QuestionCard from '@/components/QuestionCard';
 import { EXAMS, getExamById } from '@/data/exams';
 import { SUBJECTS, getAllTopics, getTopicById } from '@/data/syllabi';
-import { INITIAL_QUESTIONS } from '@/data/questions';
+import { QUESTIONS } from '@/data/questions';
 import { ExamId, Subject, Chapter, Topic, UserProfile } from '@/types';
 import { getCurrentUser, toggleTopicCompletion, setLastStudiedTopic } from '@/lib/storage';
 
@@ -109,9 +109,9 @@ function SyllabusContent() {
   const relatedPYQs = useMemo(() => {
     if (!activeTopic) return [];
     if (activeTopic.pyqIds && activeTopic.pyqIds.length > 0) {
-      return INITIAL_QUESTIONS.filter(q => activeTopic.pyqIds?.includes(q.id) && q.examId === activeTopic.examId);
+      return QUESTIONS.filter(q => activeTopic.pyqIds?.includes(q.id) && q.examId === activeTopic.examId);
     }
-    return INITIAL_QUESTIONS.filter(q => (q.chapterId === activeTopic.chapterId || q.topicId === activeTopic.id) && q.examId === activeTopic.examId);
+    return QUESTIONS.filter(q => (q.chapterId === activeTopic.chapterId || q.topicId === activeTopic.id) && q.examId === activeTopic.examId);
   }, [activeTopic]);
 
   if (!mounted || !user) {
