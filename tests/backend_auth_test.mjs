@@ -128,7 +128,7 @@ async function runTests() {
       offlineCaught = true;
     }
     assert.strictEqual(offlineCaught, true);
-    console.log('✔ Test 7 PASSED: Offline Network Failure Handled Cleanly Without Fake Login Fallback');
+    console.log('✔ Test 7 PASSED: Offline Network Failure Handled Cleanly Without Unverified Fallback');
     passed++;
   } catch (e) {
     console.error('❌ Test 7 FAILED:', e.message);

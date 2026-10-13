@@ -37,7 +37,6 @@ The production application runs on a validated canonical dataset containing **4,
 - **`official_pyq_verified` (220 questions)**: Authentic questions extracted directly from official CBSE / BSEB / BPSC question booklets and verified against official final answer keys. Displayed with an **Emerald Shield Badge**.
 - **`coaching_pyq_unverified` (384 questions)**: Authentic memory-based and coaching-institute compilation papers (e.g., STET 2023, BPSC 1.0/2.0). Displayed with an **Amber Warning Badge**.
 - **`original_practice` (4,115 questions)**: Curriculum-aligned practice drills, numerical problems, and pedagogical scenarios mapped to NCERT/SCERT chapters. Displayed with a **Blue Practice Badge**.
-- **`synthetic_ai_review` (0 in production)**: Zero unvalidated AI filler questions permitted.
 
 ### Mock Test Catalog (28 Tests)
 - **20 Full-Length Mock Papers** (5 complete 150-question simulations per exam, 150 minutes, zero negative marking).

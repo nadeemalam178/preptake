@@ -249,7 +249,7 @@ def run_validation(input_file, report_dir):
     print(f"Validation Errors: {report['validationErrorCount']}")
     print(f"Duplicate IDs: {report['duplicateIdCount']}")
     print(f"Duplicate Texts: {report['duplicateTextCount']}")
-    print(f"4-Tier Taxonomy Counts:")
+    print(f"3-Tier Taxonomy Counts:")
     for ct, count in content_type_counts.items():
         print(f"  • {ct}: {count}")
     for eid, s in exam_stats.items():
