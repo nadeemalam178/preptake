@@ -33,22 +33,37 @@ async function runTests() {
     failed++;
   }
 
-  // Test 2: Successful login with existing valid credentials
+  // Dynamic Ephemeral Candidate for Testing
+  const testUid = `ci_${Date.now()}`;
+  const testPwd = 'TestPassword123!';
+
+  // Test 2: Dynamic candidate registration and login
   try {
-    const res = await callBackend({ action: 'login', userId: 'nadeem', password: 'prep123' });
-    assert.strictEqual(res.success, true);
-    assert.strictEqual(res.user.userId, 'nadeem');
-    assert.ok(res.data);
-    console.log('✔ Test 2 PASSED: Successful Candidate Login (nadeem / prep123)');
+    const regRes = await callBackend({
+      action: 'register',
+      fullName: 'CI Automated Candidate',
+      userId: testUid,
+      password: testPwd,
+      confirmPassword: testPwd,
+      selectedExams: ['ctet-p2', 'bpsc-tre-middle']
+    });
+    assert.strictEqual(regRes.success, true);
+    assert.strictEqual(regRes.user.userId, testUid);
+
+    const loginRes = await callBackend({ action: 'login', userId: testUid, password: testPwd });
+    assert.strictEqual(loginRes.success, true);
+    assert.strictEqual(loginRes.user.userId, testUid);
+    assert.ok(loginRes.data);
+    console.log(`✔ Test 2 PASSED: Candidate Dynamic Registration & Login (${testUid})`);
     passed++;
   } catch (e) {
-    console.error('❌ Test 2 FAILED: Login failed', e.message);
+    console.error('❌ Test 2 FAILED: Registration or Login failed', e.message);
     failed++;
   }
 
   // Test 3: Incorrect password rejection
   try {
-    const res = await callBackend({ action: 'login', userId: 'nadeem', password: 'wrongpassword' });
+    const res = await callBackend({ action: 'login', userId: testUid, password: 'wrongpassword' });
     assert.strictEqual(res.success, false);
     assert.ok(res.error.includes('Invalid') || res.error.includes('credentials') || res.error.includes('Password'));
     console.log('✔ Test 3 PASSED: Incorrect Password Rejected');

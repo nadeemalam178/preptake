@@ -12,14 +12,12 @@ import {
   EyeOff,
   UserPlus,
   LogIn,
-  Table,
   BadgeCheck
 } from 'lucide-react';
 import {
   loginUserWithBackend,
   registerUserWithBackend,
-  isSessionActive,
-  SPREADSHEET_ID
+  isSessionActive
 } from '@/lib/storage';
 import { ExamId } from '@/types';
 import { EXAMS } from '@/data/exams';
@@ -244,7 +242,7 @@ export default function AuthPage() {
                     autoFocus
                     value={loginUserId}
                     onChange={e => setLoginUserId(e.target.value)}
-                    placeholder="e.g. nadeem or student1"
+                    placeholder="Enter your User ID"
                     className="w-full pl-9 pr-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-sm text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all font-mono"
                   />
                 </div>
@@ -309,7 +307,7 @@ export default function AuthPage() {
                     autoFocus
                     value={regFullName}
                     onChange={e => setRegFullName(e.target.value)}
-                    placeholder="e.g. Ramesh Kumar"
+                    placeholder="Enter your full name"
                     className="w-full pl-9 pr-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-sm text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all"
                   />
                 </div>
@@ -326,7 +324,7 @@ export default function AuthPage() {
                     required
                     value={regUserId}
                     onChange={e => setRegUserId(e.target.value.toLowerCase().replace(/\s+/g, ''))}
-                    placeholder="e.g. ramesh_bpsc"
+                    placeholder="Choose a unique User ID"
                     className="w-full pl-9 pr-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-sm text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all font-mono"
                   />
                 </div>
@@ -457,16 +455,10 @@ export default function AuthPage() {
             </form>
           )}
 
-          {/* Backend Info Footer */}
-          <div className="pt-4 border-t border-slate-100 dark:border-slate-800 space-y-2 text-[11px] text-slate-400">
-            <div className="flex items-center gap-1.5 text-slate-500">
-              <Table className="w-3.5 h-3.5 text-emerald-600" />
-              <span>Google Sheet Backend:</span>
-              <span className="font-mono text-[10px] truncate max-w-[170px]">{SPREADSHEET_ID}</span>
-            </div>
-            <p className="leading-relaxed">
-              Default test accounts: <code className="font-mono text-slate-600 dark:text-slate-300 font-bold">nadeem</code> / <code className="font-mono text-slate-600 dark:text-slate-300">prep123</code> or <code className="font-mono text-slate-600 dark:text-slate-300 font-bold">student1</code> / <code className="font-mono text-slate-600 dark:text-slate-300">pass123</code>.
-            </p>
+          {/* Security Notice Footer */}
+          <div className="pt-4 border-t border-slate-100 dark:border-slate-800 flex items-center justify-center gap-2 text-[11px] text-slate-400">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+            <span>Secure Cloud Authentication</span>
           </div>
         </div>
       </div>

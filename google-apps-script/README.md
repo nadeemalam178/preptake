@@ -96,10 +96,12 @@ If running `setupSheetStructure` triggers a block:
 
 ---
 
-## 👥 Default Test Accounts
+## 🧹 Purging Test Data & User Records
 
-| User ID | Password | Role |
-| :--- | :--- | :--- |
-| `nadeem` | `prep123` | Student / Admin |
-| `student1` | `pass123` | Student Candidate |
-| `student2` | `pass123` | Student Candidate |
+To completely clear all test accounts, test sessions, and candidate data from your Google Sheet while keeping all **Questions**, **Tests**, and **Syllabus** data safe:
+
+1. Open your Apps Script project.
+2. In the function dropdown at the top, select **`purgeAllTestDataFromEditor`**.
+3. Click **Run**.
+4. All rows in `Users`, `Sessions`, `ExamSelections`, `UserProgress`, `UserAnswers`, `TestAttempts`, and `Bookmarks` will be deleted, leaving clean header rows.
+5. Future candidate accounts register dynamically through the PrepTake registration portal.

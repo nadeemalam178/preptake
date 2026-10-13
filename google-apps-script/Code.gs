@@ -73,14 +73,6 @@ function setupSheetStructure() {
     try { ss.deleteSheet(sheet1); } catch (e) {}
   }
 
-  // Ensure default candidate test accounts exist if Users sheet only has headers
-  const usersSheet = ss.getSheetByName('Users');
-  if (usersSheet && usersSheet.getLastRow() <= 1) {
-    createUserInternal('nadeem', 'prep123', 'Nadeem');
-    createUserInternal('student1', 'pass123', 'Candidate One');
-    createUserInternal('student2', 'pass123', 'Candidate Two');
-  }
-
   Logger.log('PREPTAKE schema setup/migration completed successfully!');
 }
 
@@ -229,6 +221,8 @@ function doPost(e) {
       return handleImportQuestionsBatch(requestData);
     } else if (action === 'importTestsBatch') {
       return handleImportTestsBatch(requestData);
+    } else if (action === 'purgeAllTestData') {
+      return handlePurgeAllTestData(requestData);
     } else {
       return responseJSON({ success: false, error: 'Unknown action: ' + action });
     }
@@ -990,6 +984,53 @@ function handleImportTestsBatch(data) {
   } finally {
     lock.releaseLock();
   }
+}
+
+/**
+ * Action: purgeAllTestData (POST or Editor)
+ * Clears all test accounts, test sessions, and user records across all user tabs
+ * while preserving Questions, Tests, and Syllabus content intact.
+ */
+function handlePurgeAllTestData(data) {
+  const ss = getSpreadsheet();
+  const lock = LockService.getScriptLock();
+  lock.waitLock(20000);
+  try {
+    const userSheets = ['Users', 'Sessions', 'ExamSelections', 'UserProgress', 'UserAnswers', 'TestAttempts', 'Bookmarks'];
+    const summary = {};
+    for (let s = 0; s < userSheets.length; s++) {
+      const sheet = ss.getSheetByName(userSheets[s]);
+      if (sheet && sheet.getLastRow() > 1) {
+        const numRows = sheet.getLastRow() - 1;
+        sheet.deleteRows(2, numRows);
+        summary[userSheets[s]] = numRows;
+      } else {
+        summary[userSheets[s]] = 0;
+      }
+    }
+    return responseJSON({ success: true, message: 'All test accounts and user records cleared successfully.', summary: summary });
+  } catch (err) {
+    return responseJSON({ success: false, error: err.toString() });
+  } finally {
+    lock.releaseLock();
+  }
+}
+
+/**
+ * Convenience function to run directly from Google Apps Script Editor
+ */
+function purgeAllTestDataFromEditor() {
+  const ss = getSpreadsheet();
+  const userSheets = ['Users', 'Sessions', 'ExamSelections', 'UserProgress', 'UserAnswers', 'TestAttempts', 'Bookmarks'];
+  for (let s = 0; s < userSheets.length; s++) {
+    const sheet = ss.getSheetByName(userSheets[s]);
+    if (sheet && sheet.getLastRow() > 1) {
+      const numRows = sheet.getLastRow() - 1;
+      sheet.deleteRows(2, numRows);
+      Logger.log('Cleared ' + numRows + ' rows from ' + userSheets[s]);
+    }
+  }
+  Logger.log('All test accounts and user data cleared successfully.');
 }
 
 function responseJSON(payload) {
