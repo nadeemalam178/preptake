@@ -52,11 +52,13 @@ def generate_bpsc_middle_questions(existing_pyqs=None):
         q["correctAnswer"] = q["correctAnswerId"]
         
         if "contentType" not in q:
-            q["contentType"] = "official_pyq" if q.get("isOfficialPYQ") else "practice"
+            q["contentType"] = "official_pyq_verified" if q.get("isOfficialPYQ") else "original_practice"
         if "verificationStatus" not in q:
-            q["verificationStatus"] = "Verified Official PYQ" if q.get("isOfficialPYQ") else "Curated Practice Drill"
+            q["verificationStatus"] = "Verified Official PYQ" if q.get("isOfficialPYQ") else "Verified Syllabus Practice"
         if "sourceTitle" not in q:
             q["sourceTitle"] = q.get("sourceReference", "BPSC TRE Middle School Examination Pattern & Syllabi")
+        if "sourceType" not in q:
+            q["sourceType"] = "official_curriculum"
             
         questions.append(q)
         qid_counter += 1

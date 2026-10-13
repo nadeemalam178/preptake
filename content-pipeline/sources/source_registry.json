@@ -1,0 +1,760 @@
+[
+  {
+    "sourceId": "ctet-archive",
+    "title": "CTET Official Question Paper Archive",
+    "provider": "Central Board of Secondary Education (CBSE)",
+    "url": "https://ctet.nic.in/archive/",
+    "exam": "ctet-p2",
+    "subject": "Mathematics & Science",
+    "year": "2021-2024",
+    "providerType": "official_archive",
+    "fileType": "pdf_zip",
+    "lastChecked": "2026-10-13 05:54:14Z",
+    "httpStatus": 200,
+    "accessStatus": "accessible",
+    "discoveredPdfLinks": [],
+    "notes": ""
+  },
+  {
+    "sourceId": "ctet-final-keys",
+    "title": "CTET Official Final Answer Keys Repository",
+    "provider": "Central Board of Secondary Education (CBSE)",
+    "url": "https://ctet.nic.in/previous-year-final-answer-key/",
+    "exam": "ctet-p2",
+    "subject": "Mathematics & Science",
+    "year": "2021-2026",
+    "providerType": "official_archive",
+    "fileType": "pdf_key",
+    "lastChecked": "2026-10-13 05:54:15Z",
+    "httpStatus": 200,
+    "accessStatus": "accessible",
+    "discoveredPdfLinks": [
+      {
+        "url": "https://cdnbbsr.s3waas.gov.in/s3443dec3062d0286986e21dc0631734c9/uploads/2026/04/20260401145739613.pdf",
+        "text": "CTET Feb26 Answer Key P1 07Feb2026",
+        "fileType": "pdf"
+      },
+      {
+        "url": "https://cdnbbsr.s3waas.gov.in/s3443dec3062d0286986e21dc0631734c9/uploads/2026/04/20260401145739613.pdf",
+        "text": "View(138 KB)",
+        "fileType": "pdf"
+      },
+      {
+        "url": "https://cdnbbsr.s3waas.gov.in/s3443dec3062d0286986e21dc0631734c9/uploads/2026/04/20260401145739613.pdf",
+        "text": "Direct PDF Resource",
+        "fileType": "pdf"
+      },
+      {
+        "url": "https://cdnbbsr.s3waas.gov.in/s3443dec3062d0286986e21dc0631734c9/uploads/2026/04/20260401449979389.pdf",
+        "text": "CTET Feb26 Answer Key P1 08Feb2026",
+        "fileType": "pdf"
+      },
+      {
+        "url": "https://cdnbbsr.s3waas.gov.in/s3443dec3062d0286986e21dc0631734c9/uploads/2026/04/20260401449979389.pdf",
+        "text": "View(256 KB)",
+        "fileType": "pdf"
+      },
+      {
+        "url": "https://cdnbbsr.s3waas.gov.in/s3443dec3062d0286986e21dc0631734c9/uploads/2026/04/20260401449979389.pdf",
+        "text": "Direct PDF Resource",
+        "fileType": "pdf"
+      },
+      {
+        "url": "https://cdnbbsr.s3waas.gov.in/s3443dec3062d0286986e21dc0631734c9/uploads/2026/04/202604011664019376.pdf",
+        "text": "CTET Feb26 Answer Key P1 01March2026",
+        "fileType": "pdf"
+      },
+      {
+        "url": "https://cdnbbsr.s3waas.gov.in/s3443dec3062d0286986e21dc0631734c9/uploads/2026/04/202604011664019376.pdf",
+        "text": "View(100 KB)",
+        "fileType": "pdf"
+      },
+      {
+        "url": "https://cdnbbsr.s3waas.gov.in/s3443dec3062d0286986e21dc0631734c9/uploads/2026/04/202604011664019376.pdf",
+        "text": "Direct PDF Resource",
+        "fileType": "pdf"
+      },
+      {
+        "url": "https://cdnbbsr.s3waas.gov.in/s3443dec3062d0286986e21dc0631734c9/uploads/2026/04/202604011258134140.pdf",
+        "text": "CTET Feb26 Answer Key P2 07Feb2026",
+        "fileType": "pdf"
+      },
+      {
+        "url": "https://cdnbbsr.s3waas.gov.in/s3443dec3062d0286986e21dc0631734c9/uploads/2026/04/20260401628564007.pdf",
+        "text": "CTET Feb26 Answer Key P2 08Feb2026",
+        "fileType": "pdf"
+      },
+      {
+        "url": "https://cdnbbsr.s3waas.gov.in/s3443dec3062d0286986e21dc0631734c9/uploads/2026/04/2026040116341275.pdf",
+        "text": "CTET Feb26 Answer Key P2 01March2026",
+        "fileType": "pdf"
+      },
+      {
+        "url": "https://cdnbbsr.s3waas.gov.in/s3443dec3062d0286986e21dc0631734c9/uploads/2025/01/2025012315.pdf",
+        "text": "CTET Dec24 Answer Key P2",
+        "fileType": "pdf"
+      },
+      {
+        "url": "https://cdnbbsr.s3waas.gov.in/s3443dec3062d0286986e21dc0631734c9/uploads/2025/01/2025012321.pdf",
+        "text": "CTET Dec24 Answer Key P1",
+        "fileType": "pdf"
+      },
+      {
+        "url": "https://cdnbbsr.s3waas.gov.in/s3443dec3062d0286986e21dc0631734c9/uploads/2024/08/2024080769.pdf",
+        "text": "CTET July24 Answer Key P2",
+        "fileType": "pdf"
+      },
+      {
+        "url": "https://cdnbbsr.s3waas.gov.in/s3443dec3062d0286986e21dc0631734c9/uploads/2024/08/2024080797.pdf",
+        "text": "CTET July24 Answer Key P1",
+        "fileType": "pdf"
+      },
+      {
+        "url": "https://cdnbbsr.s3waas.gov.in/s3443dec3062d0286986e21dc0631734c9/uploads/2024/02/2024021970.pdf",
+        "text": "CTET Jan24 Answer Key P2",
+        "fileType": "pdf"
+      },
+      {
+        "url": "https://cdnbbsr.s3waas.gov.in/s3443dec3062d0286986e21dc0631734c9/uploads/2024/02/2024021954.pdf",
+        "text": "CTET Jan24 Answer Key P1",
+        "fileType": "pdf"
+      },
+      {
+        "url": "https://cdnbbsr.s3waas.gov.in/s3443dec3062d0286986e21dc0631734c9/uploads/2023/09/2023092617.pdf",
+        "text": "CTET Aug23 Answer Key P2",
+        "fileType": "pdf"
+      },
+      {
+        "url": "https://cdnbbsr.s3waas.gov.in/s3443dec3062d0286986e21dc0631734c9/uploads/2023/09/2023092672.pdf",
+        "text": "CTET Aug23 Answer Key P1",
+        "fileType": "pdf"
+      },
+      {
+        "url": "https://cdnbbsr.s3waas.gov.in/s3443dec3062d0286986e21dc0631734c9/uploads/2023/03/2023030346.pdf",
+        "text": "CTET Dec22 Answer Key",
+        "fileType": "pdf"
+      },
+      {
+        "url": "https://cdnbbsr.s3waas.gov.in/s3443dec3062d0286986e21dc0631734c9/uploads/2022/08/2022082370.pdf",
+        "text": "CTET December 2021 Answer Key Paper 1 English Medium",
+        "fileType": "pdf"
+      },
+      {
+        "url": "https://cdnbbsr.s3waas.gov.in/s3443dec3062d0286986e21dc0631734c9/uploads/2022/08/2022082335.pdf",
+        "text": "CTET December 2021 Answer Key Paper 2 English Medium",
+        "fileType": "pdf"
+      },
+      {
+        "url": "https://cdnbbsr.s3waas.gov.in/s3443dec3062d0286986e21dc0631734c9/uploads/2022/08/2022082359.pdf",
+        "text": "CTET December 2021 Answer Key Paper 2 Hindi Medium",
+        "fileType": "pdf"
+      },
+      {
+        "url": "https://cdnbbsr.s3waas.gov.in/s3443dec3062d0286986e21dc0631734c9/uploads/2022/08/2022082386.pdf",
+        "text": "CTET December 2021 Answer Key Paper 1 Hindi Medium",
+        "fileType": "pdf"
+      }
+    ],
+    "notes": ""
+  },
+  {
+    "sourceId": "bpsc-official",
+    "title": "BPSC Official Notices & Question Booklets",
+    "provider": "Bihar Public Service Commission (BPSC)",
+    "url": "https://bpsc.bihar.gov.in/",
+    "exam": "bpsc-tre-middle",
+    "subject": "Mathematics & Science / Social Studies",
+    "year": "2023-2024",
+    "providerType": "official_archive",
+    "fileType": "pdf_booklet",
+    "lastChecked": "2026-10-13 05:54:16Z",
+    "httpStatus": null,
+    "accessStatus": "ssl_handshake_failed",
+    "discoveredPdfLinks": [],
+    "notes": "SSL handshake failure: Government NIC portal requires specific regional cipher suites."
+  },
+  {
+    "sourceId": "bseb-stet",
+    "title": "BSEB STET Official Information & Notice Portal",
+    "provider": "Bihar School Examination Board (BSEB)",
+    "url": "https://bsebstet.org/",
+    "exam": "bihar-stet-p1",
+    "subject": "Mathematics & Science",
+    "year": "2024-2025",
+    "providerType": "official_portal",
+    "fileType": "pdf_notice",
+    "lastChecked": "2026-10-13 05:54:17Z",
+    "httpStatus": 200,
+    "accessStatus": "accessible",
+    "discoveredPdfLinks": [
+      {
+        "url": "https://bsebstet.org/stet.pdf",
+        "text": "Important Information Regarding STET - 2025 Objection",
+        "fileType": "pdf"
+      }
+    ],
+    "notes": ""
+  },
+  {
+    "sourceId": "ncert-curriculum",
+    "title": "NCERT Official Textbooks & Exemplars",
+    "provider": "National Council of Educational Research and Training (NCERT)",
+    "url": "https://ncert.nic.in/textbook.php",
+    "exam": "all",
+    "subject": "Science & Mathematics (Classes 6-10)",
+    "year": "2024",
+    "providerType": "official_curriculum",
+    "fileType": "curriculum_text",
+    "lastChecked": "2026-10-13 05:54:18Z",
+    "httpStatus": null,
+    "accessStatus": "connection_error",
+    "discoveredPdfLinks": [],
+    "notes": "('Connection aborted.', ConnectionResetError(10054, 'An existing connection was forcibly closed by the remote host', Non"
+  },
+  {
+    "sourceId": "adda247-portal",
+    "title": "Adda247 Teaching Jobs Main Examination Hub",
+    "provider": "Adda247 Education",
+    "url": "https://www.adda247.com/",
+    "exam": "all",
+    "subject": "General Teaching Exams",
+    "year": "2024",
+    "providerType": "coaching_portal",
+    "fileType": "web_portal",
+    "lastChecked": "2026-10-13 05:54:18Z",
+    "httpStatus": 200,
+    "accessStatus": "accessible",
+    "discoveredPdfLinks": [],
+    "notes": ""
+  },
+  {
+    "sourceId": "adda247-ebooks",
+    "title": "Adda247 Free Study Material & Ebooks Portal",
+    "provider": "Adda247 Education",
+    "url": "https://www.adda247.com/ebooks",
+    "exam": "all",
+    "subject": "Study Materials & Practice Question Banks",
+    "year": "2024",
+    "providerType": "coaching_portal",
+    "fileType": "ebook_practice",
+    "lastChecked": "2026-10-13 05:54:19Z",
+    "httpStatus": 200,
+    "accessStatus": "accessible",
+    "discoveredPdfLinks": [],
+    "notes": ""
+  },
+  {
+    "sourceId": "testbook-portal",
+    "title": "Testbook Educational Portal",
+    "provider": "Testbook Edu Solutions",
+    "url": "https://testbook.com/",
+    "exam": "all",
+    "subject": "Teaching Exam Test Series & Question Banks",
+    "year": "2024",
+    "providerType": "coaching_portal",
+    "fileType": "web_portal",
+    "lastChecked": "2026-10-13 05:54:20Z",
+    "httpStatus": 200,
+    "accessStatus": "accessible",
+    "discoveredPdfLinks": [],
+    "notes": ""
+  },
+  {
+    "sourceId": "testbook-stet",
+    "title": "Testbook Bihar STET Previous Year Papers Portal",
+    "provider": "Testbook Edu Solutions",
+    "url": "https://testbook.com/bihar-stet/previous-year-papers",
+    "exam": "bihar-stet-p1",
+    "subject": "Mathematics & Science (Class 9-10)",
+    "year": "2023-2025",
+    "providerType": "coaching_portal",
+    "fileType": "practice_pyq",
+    "lastChecked": "2026-10-13 05:54:21Z",
+    "httpStatus": 200,
+    "accessStatus": "accessible",
+    "discoveredPdfLinks": [
+      {
+        "url": "https://testbook.com/pdf-viewer?id=69282f48dc1fe27246c17487&language=english",
+        "text": "Download PDFs",
+        "fileType": "viewer_link"
+      },
+      {
+        "url": "https://testbook.com/pdf-viewer?id=692830173b6e51c64ec2a35e&language=english",
+        "text": "Download PDFs",
+        "fileType": "viewer_link"
+      },
+      {
+        "url": "https://testbook.com/pdf-viewer?id=69282dc3ce275ff6b9fca7bd&language=hindi",
+        "text": "Download PDFs",
+        "fileType": "viewer_link"
+      },
+      {
+        "url": "https://testbook.com/pdf-viewer?id=69282e3ec9652a3a3f8c5286&language=english",
+        "text": "Download PDFs",
+        "fileType": "viewer_link"
+      },
+      {
+        "url": "https://testbook.com/pdf-viewer?id=69282f13ae87f1aa240b70b4&language=english",
+        "text": "Download PDFs",
+        "fileType": "viewer_link"
+      },
+      {
+        "url": "https://testbook.com/pdf-viewer?id=69282f736dc843a496b6e193&language=english",
+        "text": "Download PDFs",
+        "fileType": "viewer_link"
+      },
+      {
+        "url": "https://testbook.com/pdf-viewer?id=69282f90d2ccce2e42ff055e&language=english",
+        "text": "Download PDFs",
+        "fileType": "viewer_link"
+      },
+      {
+        "url": "https://testbook.com/pdf-viewer?id=69282dc04d803be2cae65708&language=hindi",
+        "text": "Download PDFs",
+        "fileType": "viewer_link"
+      },
+      {
+        "url": "https://testbook.com/pdf-viewer?id=69282dc3ce275ff6b9fca7bd&language=hindi",
+        "text": "Download PDFs",
+        "fileType": "viewer_link"
+      },
+      {
+        "url": "https://testbook.com/pdf-viewer?id=66fb843301a00c244143d8d9&language=english",
+        "text": "Download PDF",
+        "fileType": "viewer_link"
+      },
+      {
+        "url": "https://testbook.com/pdf-viewer?u=cdn.testbook.com/1757685361339-Bihar%20STET%20Paper%20-2%20TOP%20200%20PYQ%20Pedagogy%20and%20Other%20Skills%20By%20Testbook.pdf/1757685353.pdf",
+        "text": "Direct PDF Resource",
+        "fileType": "pdf"
+      }
+    ],
+    "notes": ""
+  },
+  {
+    "sourceId": "adda247-bpsc",
+    "title": "Adda247 BPSC Teacher Previous Year Papers (TRE 1.0, 2.0, 3.0, 4.0)",
+    "provider": "Adda247 Education",
+    "url": "https://www.adda247.com/teaching-jobs-exam/bpsc-teacher-previous-year-question-papers/",
+    "exam": "bpsc-tre-middle",
+    "subject": "Class 6-8 Math/Sci & Class 9-10 Science",
+    "year": "2023-2024",
+    "providerType": "coaching_portal",
+    "fileType": "practice_pyq",
+    "lastChecked": "2026-10-13 05:54:22Z",
+    "httpStatus": 200,
+    "accessStatus": "accessible",
+    "discoveredPdfLinks": [
+      {
+        "url": "https://www.adda247.com/jobs/wp-content/uploads/sites/22/2026/08/21151512/BPSC-TRE-3.0-Primary-Question-Papers-2024-PDFs-March-2024.pdf",
+        "text": "Download PDF",
+        "fileType": "pdf"
+      },
+      {
+        "url": "https://www.adda247.com/jobs/wp-content/uploads/sites/22/2026/08/21151815/BPSC-Middle-Question-Paper-For-Class-6-8-English-19-July-2024.pdf",
+        "text": "Download PDF",
+        "fileType": "pdf"
+      },
+      {
+        "url": "https://www.adda247.com/jobs/wp-content/uploads/sites/22/2026/08/21151816/BPSC-Middle-Question-Paper-For-Class-6-8-Hindi-19-July-2024.pdf",
+        "text": "Download PDF",
+        "fileType": "pdf"
+      },
+      {
+        "url": "https://www.adda247.com/jobs/wp-content/uploads/sites/22/2026/08/21151819/BPSC-Middle-Question-Paper-For-Class-6-8-math-science-19-July-2024.pdf",
+        "text": "Download PDF",
+        "fileType": "pdf"
+      },
+      {
+        "url": "https://www.adda247.com/jobs/wp-content/uploads/sites/22/2026/08/21151821/BPSC-Middle-Question-Paper-For-Class-6-8-Sanskrit-19-July-2024.pdf",
+        "text": "Download PDF",
+        "fileType": "pdf"
+      },
+      {
+        "url": "https://www.adda247.com/jobs/wp-content/uploads/sites/22/2026/08/21151823/BPSC-Middle-Question-Paper-For-Class-6-8-social-science-19-July-2024.pdf",
+        "text": "Download PDF",
+        "fileType": "pdf"
+      },
+      {
+        "url": "https://www.adda247.com/jobs/wp-content/uploads/sites/22/2026/08/21152030/BPSC-TGT-Question-Paper-For-Class-9-10-Arabic-21-July-2024.pdf",
+        "text": "Download PDF",
+        "fileType": "pdf"
+      },
+      {
+        "url": "https://www.adda247.com/jobs/wp-content/uploads/sites/22/2026/08/21152032/BPSC-TGT-Question-Paper-For-Class-9-10-Bengali-21-July-2024.pdf",
+        "text": "Download PDF",
+        "fileType": "pdf"
+      },
+      {
+        "url": "https://www.adda247.com/jobs/wp-content/uploads/sites/22/2026/08/21152033/BPSC-TGT-Question-Paper-For-Class-9-10-Dance-21-July-2024.pdf",
+        "text": "Download PDF",
+        "fileType": "pdf"
+      },
+      {
+        "url": "https://www.adda247.com/jobs/wp-content/uploads/sites/22/2026/08/21152034/BPSC-TGT-Question-Paper-For-Class-9-10-English-21-July-2024.pdf",
+        "text": "Download PDF",
+        "fileType": "pdf"
+      },
+      {
+        "url": "https://www.adda247.com/jobs/wp-content/uploads/sites/22/2026/08/21152035/BPSC-TGT-Question-Paper-For-Class-9-10-Fine-Arts-21-July-2024.pdf",
+        "text": "Download PDF",
+        "fileType": "pdf"
+      },
+      {
+        "url": "https://www.adda247.com/jobs/wp-content/uploads/sites/22/2026/08/21152036/BPSC-TGT-Question-Paper-For-Class-9-10-Hindi-21-July-2024.pdf",
+        "text": "Download PDF",
+        "fileType": "pdf"
+      },
+      {
+        "url": "https://www.adda247.com/jobs/wp-content/uploads/sites/22/2026/08/21152037/BPSC-TGT-Question-Paper-For-Class-9-10-Maithali-21-July-2024.pdf",
+        "text": "Download PDF",
+        "fileType": "pdf"
+      },
+      {
+        "url": "https://www.adda247.com/jobs/wp-content/uploads/sites/22/2026/08/21152038/BPSC-TGT-Question-Paper-For-Class-9-10-Maths-21-July-2024.pdf",
+        "text": "Download PDF",
+        "fileType": "pdf"
+      },
+      {
+        "url": "https://www.adda247.com/jobs/wp-content/uploads/sites/22/2026/08/21152040/BPSC-TGT-Question-Paper-For-Class-9-10-Music-21-July-2024.pdf",
+        "text": "Download PDF",
+        "fileType": "pdf"
+      },
+      {
+        "url": "https://www.adda247.com/jobs/wp-content/uploads/sites/22/2026/08/21152041/BPSC-TGT-Question-Paper-For-Class-9-10-Persian-21-July-2024.pdf",
+        "text": "Download PDF",
+        "fileType": "pdf"
+      },
+      {
+        "url": "https://www.adda247.com/jobs/wp-content/uploads/sites/22/2026/08/21152042/BPSC-TGT-Question-Paper-For-Class-9-10-Physical-Education-21-July-2024.pdf",
+        "text": "Download PDF",
+        "fileType": "pdf"
+      },
+      {
+        "url": "https://www.adda247.com/jobs/wp-content/uploads/sites/22/2026/08/21152043/BPSC-TGT-Question-Paper-For-Class-9-10-Sanskrit-21-July-2024.pdf",
+        "text": "Download PDF",
+        "fileType": "pdf"
+      },
+      {
+        "url": "https://www.adda247.com/jobs/wp-content/uploads/sites/22/2026/08/21152044/BPSC-TGT-Question-Paper-For-Class-9-10-Social-Science-21-July-2024.pdf",
+        "text": "Download PDF",
+        "fileType": "pdf"
+      },
+      {
+        "url": "https://www.adda247.com/jobs/wp-content/uploads/sites/22/2026/08/21152046/BPSC-TGT-Question-Paper-For-Class-9-10-Urdu-21-July-2024.pdf",
+        "text": "Download PDF",
+        "fileType": "pdf"
+      },
+      {
+        "url": "https://www.adda247.com/jobs/wp-content/uploads/sites/22/2026/08/21153103/BPSC-PGT-Question-Paper-For-Class-11-12-Accountancy-22-July-2024.pdf",
+        "text": "Download PDF",
+        "fileType": "pdf"
+      },
+      {
+        "url": "https://www.adda247.com/jobs/wp-content/uploads/sites/22/2026/08/21153104/BPSC-PGT-Question-Paper-For-Class-11-12-Arabic-22-July-2024.pdf",
+        "text": "Download PDF",
+        "fileType": "pdf"
+      },
+      {
+        "url": "https://www.adda247.com/jobs/wp-content/uploads/sites/22/2026/08/21153106/BPSC-PGT-Question-Paper-For-Class-11-12-Bengali-22-July-2024.pdf",
+        "text": "Download PDF",
+        "fileType": "pdf"
+      },
+      {
+        "url": "https://www.adda247.com/jobs/wp-content/uploads/sites/22/2026/08/21153107/BPSC-PGT-Question-Paper-For-Class-11-12-Bhojpuri-22-July-2024.pdf",
+        "text": "Download PDF",
+        "fileType": "pdf"
+      },
+      {
+        "url": "https://www.adda247.com/jobs/wp-content/uploads/sites/22/2026/08/21153109/BPSC-PGT-Question-Paper-For-Class-11-12-Botany-22-July-2024.pdf",
+        "text": "Download PDF",
+        "fileType": "pdf"
+      }
+    ],
+    "notes": ""
+  },
+  {
+    "sourceId": "adda247-tet-p2",
+    "title": "Adda247 Bihar TET / STET Paper 2 Preparation Repository",
+    "provider": "Adda247 Education",
+    "url": "https://www.adda247.com/teaching-jobs-exam/bihar-tet-previous-year-paper-2/",
+    "exam": "bihar-stet-p1",
+    "subject": "Secondary Mathematics & Science",
+    "year": "2020-2025",
+    "providerType": "coaching_portal",
+    "fileType": "practice_pyq",
+    "lastChecked": "2026-10-13 05:54:23Z",
+    "httpStatus": 200,
+    "accessStatus": "accessible",
+    "discoveredPdfLinks": [
+      {
+        "url": "https://www.adda247.com/jobs/wp-content/uploads/sites/22/2026/08/17112550/Bihar-STET-Class-9-10-English-Official-Paper-I-Held-On_-18-Oct-2025-Shift-2.pdf",
+        "text": "Download PDF",
+        "fileType": "pdf"
+      },
+      {
+        "url": "https://www.adda247.com/jobs/wp-content/uploads/sites/22/2026/08/17112557/Bihar-STET-Class-9-10-Fine-Arts-Official-Paper-I-Held-On_-19-Oct-2025-Shift-1.pdf",
+        "text": "Download PDF",
+        "fileType": "pdf"
+      },
+      {
+        "url": "https://www.adda247.com/jobs/wp-content/uploads/sites/22/2026/08/17112601/Bihar-STET-Class-9-10-Hindi-Official-Paper-I-Held-On_-17-Oct-2025-Shift-2.pdf",
+        "text": "Download PDF",
+        "fileType": "pdf"
+      },
+      {
+        "url": "https://www.adda247.com/jobs/wp-content/uploads/sites/22/2026/08/17112607/Bihar-STET-Class-9-10-Maithili-Official-Paper-I-Held-On_-19-Oct-2025-Shift-1.pdf",
+        "text": "Download PDF",
+        "fileType": "pdf"
+      },
+      {
+        "url": "https://www.adda247.com/jobs/wp-content/uploads/sites/22/2026/08/17112612/Bihar-STET-Class-9-10-Math-Official-Paper-I-Held-On_-31-Oct-2025-Shift-1-Hindi.pdf",
+        "text": "Download PDF",
+        "fileType": "pdf"
+      },
+      {
+        "url": "https://www.adda247.com/jobs/wp-content/uploads/sites/22/2026/08/17112616/Bihar-STET-Class-9-10-Math-Official-Paper-I-Held-On_-31-Oct-2025-Shift-1-Eng.pdf",
+        "text": "Download PDF",
+        "fileType": "pdf"
+      },
+      {
+        "url": "https://www.adda247.com/jobs/wp-content/uploads/sites/22/2026/08/17112620/Bihar-STET-Class-9-10-Sanskrit-Official-Paper-I-Held-On_-19-Oct-2025-Shift-1.pdf",
+        "text": "Download PDF",
+        "fileType": "pdf"
+      },
+      {
+        "url": "https://www.adda247.com/jobs/wp-content/uploads/sites/22/2026/08/17112623/Bihar-STET-Class-9-10-Science-Official-Paper-I-Held-On_-14-Oct-2025-Shift-1-Hindi.pdf",
+        "text": "Download PDF",
+        "fileType": "pdf"
+      },
+      {
+        "url": "https://www.adda247.com/jobs/wp-content/uploads/sites/22/2026/08/17112627/Bihar-STET-Class-9-10-Science-Official-Paper-I-Held-On_-14-Oct-2025-Shift-1-Eng.pdf",
+        "text": "Download PDF",
+        "fileType": "pdf"
+      },
+      {
+        "url": "https://www.adda247.com/jobs/wp-content/uploads/sites/22/2026/08/17112632/Bihar-STET-Class-9-10-Science-Official-Paper-I-Held-On_-14-Oct-2025-Shift-2-HIndi.pdf",
+        "text": "Download PDF",
+        "fileType": "pdf"
+      },
+      {
+        "url": "https://www.adda247.com/jobs/wp-content/uploads/sites/22/2026/08/17112636/Bihar-STET-Class-9-10-Science-Official-Paper-I-Held-On_-14-Oct-2025-Shift-2-Eng.pdf",
+        "text": "Download PDF",
+        "fileType": "pdf"
+      },
+      {
+        "url": "https://www.adda247.com/jobs/wp-content/uploads/sites/22/2026/08/17112640/Bihar-STET-Class-9-10-Science-Official-Paper-I-Held-On_-15-Oct-2025-Shift-2-Hindi.pdf",
+        "text": "Download PDF",
+        "fileType": "pdf"
+      },
+      {
+        "url": "https://www.adda247.com/jobs/wp-content/uploads/sites/22/2026/08/17112643/Bihar-STET-Class-9-10-Science-Official-Paper-I-Held-On_-15-Oct-2025-Shift-2-Eng.pdf",
+        "text": "Download PDF",
+        "fileType": "pdf"
+      },
+      {
+        "url": "https://www.adda247.com/jobs/wp-content/uploads/sites/22/2026/08/17112647/Bihar-STET-Class-9-10-Social-Science-Official-Paper-I-Held-On_-01-Nov-2025-Shift-1-Hindi.pdf",
+        "text": "Download PDF",
+        "fileType": "pdf"
+      },
+      {
+        "url": "https://www.adda247.com/jobs/wp-content/uploads/sites/22/2026/08/17112653/Bihar-STET-Class-9-10-Social-Science-Official-Paper-I-Held-On_-01-Nov-2025-Shift-1-Eng.pdf",
+        "text": "Download PDF",
+        "fileType": "pdf"
+      },
+      {
+        "url": "https://www.adda247.com/jobs/wp-content/uploads/sites/22/2026/08/17112657/Bihar-STET-Class-9-10-Social-Science-Official-Paper-I-Held-On_-01-Nov-2025-Shift-2-Hindi.pdf",
+        "text": "Download PDF",
+        "fileType": "pdf"
+      },
+      {
+        "url": "https://www.adda247.com/jobs/wp-content/uploads/sites/22/2026/08/17112701/Bihar-STET-Class-9-10-Social-Science-Official-Paper-I-Held-On_-15-Oct-2025-Shift-1-Hindi.pdf",
+        "text": "Download PDF",
+        "fileType": "pdf"
+      },
+      {
+        "url": "https://www.adda247.com/jobs/wp-content/uploads/sites/22/2026/08/17112707/Bihar-STET-Class-9-10-Social-Science-Official-Paper-I-Held-On_-15-Oct-2025-Shift-1-Eng.pdf",
+        "text": "Download PDF",
+        "fileType": "pdf"
+      },
+      {
+        "url": "https://www.adda247.com/jobs/wp-content/uploads/sites/22/2026/08/17112712/Bihar-STET-Class-9-10-Social-Science-Official-Paper-I-Held-On_-16-Oct-2025-Shift-2-Hindi.pdf",
+        "text": "Download PDF",
+        "fileType": "pdf"
+      },
+      {
+        "url": "https://www.adda247.com/jobs/wp-content/uploads/sites/22/2026/08/17112717/Bihar-STET-Class-9-10-Social-Science-Official-Paper-I-Held-On_-16-Oct-2025-Shift-2-Eng.pdf",
+        "text": "Download PDF",
+        "fileType": "pdf"
+      },
+      {
+        "url": "https://www.adda247.com/jobs/wp-content/uploads/sites/22/2026/08/17112721/Bihar-STET-SST-Question-Paper-15-Oct-2025-Paper-I.pdf",
+        "text": "Download PDF",
+        "fileType": "pdf"
+      },
+      {
+        "url": "https://www.adda247.com/jobs/wp-content/uploads/sites/22/2026/08/17114211/Bihar-STET-Class-11-12-Botany-Official-Paper-II-Held-On_-16-Nov-2025-Shift-2-Hindi.pdf",
+        "text": "Download PDF",
+        "fileType": "pdf"
+      },
+      {
+        "url": "https://www.adda247.com/jobs/wp-content/uploads/sites/22/2026/08/17114216/Bihar-STET-Class-11-12-Botany-Official-Paper-II-Held-On_-16-Nov-2025-Shift-2-Eng.pdf",
+        "text": "Download PDF",
+        "fileType": "pdf"
+      },
+      {
+        "url": "https://www.adda247.com/jobs/wp-content/uploads/sites/22/2026/08/17114221/Bihar-STET-Class-11-12-Commerce-Official-Paper-II-Held-On_-08-Nov-2025-Shift-1-Hindi.pdf",
+        "text": "Download PDF",
+        "fileType": "pdf"
+      },
+      {
+        "url": "https://www.adda247.com/jobs/wp-content/uploads/sites/22/2026/08/17114227/Bihar-STET-Class-11-12-Commerce-Official-Paper-II-Held-On_-08-Nov-2025-Shift-1-Eng.pdf",
+        "text": "Download PDF",
+        "fileType": "pdf"
+      }
+    ],
+    "notes": ""
+  },
+  {
+    "sourceId": "adda247-ctet-p2",
+    "title": "Adda247 CTET Paper 2 Previous Year Papers Repository",
+    "provider": "Adda247 Education",
+    "url": "https://www.adda247.com/teaching-jobs-exam/ctet-previous-year-question-paper-pdfs/",
+    "exam": "ctet-p2",
+    "subject": "Mathematics & Science Paper 2",
+    "year": "2022-2026",
+    "providerType": "coaching_portal",
+    "fileType": "practice_pyq",
+    "lastChecked": "2026-10-13 05:54:24Z",
+    "httpStatus": 200,
+    "accessStatus": "accessible",
+    "discoveredPdfLinks": [
+      {
+        "url": "https://www.adda247.com/jobs/wp-content/uploads/sites/22/2026/05/13180005/CTET-Question-Paper-I-Held-on-1-March-2026-SET-1_ACF-26-I-K.pdf",
+        "text": "Download PDF",
+        "fileType": "pdf"
+      },
+      {
+        "url": "https://www.adda247.com/jobs/wp-content/uploads/sites/22/2026/05/13180006/CTET-Question-Paper-I-Held-on-1-March-2026-SET-2_ACF-26-I-L.pdf",
+        "text": "Download PDF",
+        "fileType": "pdf"
+      },
+      {
+        "url": "https://www.adda247.com/jobs/wp-content/uploads/sites/22/2026/05/13180007/CTET-Question-Paper-I-Held-on-1-March-2026-SET-3_ACF-26-I-M.pdf",
+        "text": "Download PDF",
+        "fileType": "pdf"
+      },
+      {
+        "url": "https://www.adda247.com/jobs/wp-content/uploads/sites/22/2026/05/13180009/CTET-Question-Paper-I-Held-on-1-March-2026-SET-4_ACF-26-I-N.pdf",
+        "text": "Download PDF",
+        "fileType": "pdf"
+      },
+      {
+        "url": "https://www.adda247.com/jobs/wp-content/uploads/sites/22/2026/05/13180011/CTET-Question-Paper-II-Held-on-1-March-2026-Maths-SST-SET-1_ACF-26-II-O.pdf",
+        "text": "Download PDF",
+        "fileType": "pdf"
+      },
+      {
+        "url": "https://www.adda247.com/jobs/wp-content/uploads/sites/22/2026/05/13180013/CTET-Question-Paper-II-Held-on-1-March-2026-Maths-SST-SET-2_ACF-26-II-P.pdf",
+        "text": "Download PDF",
+        "fileType": "pdf"
+      },
+      {
+        "url": "https://www.adda247.com/jobs/wp-content/uploads/sites/22/2026/05/13180016/CTET-Question-Paper-II-Held-on-1-March-2026-Maths-SST-SET-3_PAPER-II_ACF-26-II-Q.pdf",
+        "text": "Download PDF",
+        "fileType": "pdf"
+      },
+      {
+        "url": "https://www.adda247.com/jobs/wp-content/uploads/sites/22/2026/05/13180019/CTET-Question-Paper-II-Held-on-1-March-2026-Maths-SST-SET-4_PAPER-II_ACF-26-II-R.pdf",
+        "text": "Download PDF",
+        "fileType": "pdf"
+      },
+      {
+        "url": "https://www.adda247.com/jobs/wp-content/uploads/sites/13/2026/02/07132404/CTET-7-Feb-Code-X.pdf",
+        "text": "Download PDF",
+        "fileType": "pdf"
+      },
+      {
+        "url": "https://www.adda247.com/jobs/wp-content/uploads/sites/22/2026/03/13164622/Paper-2_07Feb2026.pdf",
+        "text": "Download PDF",
+        "fileType": "pdf"
+      },
+      {
+        "url": "https://www.adda247.com/jobs/wp-content/uploads/sites/22/2026/05/11111004/CTET-Question-Paper-2-Shift-1-7-Feb-2026-Code-Y-Maths.pdf",
+        "text": "Download PDF",
+        "fileType": "pdf"
+      },
+      {
+        "url": "https://www.adda247.com/jobs/wp-content/uploads/sites/22/2026/05/11111008/CTET-Question-Paper-2-Shift-1-7-Feb-2026-Code-Y-Social-Science.pdf",
+        "text": "Download PDF",
+        "fileType": "pdf"
+      },
+      {
+        "url": "https://www.adda247.com/jobs/wp-content/uploads/sites/22/2026/05/11111022/CTET-Question-Paper-2-Shift-1-7-Feb-2026-Code-Z-Maths-SST.pdf",
+        "text": "Download PDF",
+        "fileType": "pdf"
+      },
+      {
+        "url": "https://www.adda247.com/jobs/wp-content/uploads/sites/22/2026/05/11110941/CTET-Question-Paper-1-Shift-2-7-Feb-2026-Code-U.pdf",
+        "text": "Download PDF",
+        "fileType": "pdf"
+      },
+      {
+        "url": "https://www.adda247.com/jobs/wp-content/uploads/sites/22/2026/03/13164623/CTET-7-FEB-2026-PAPER-1-1.pdf",
+        "text": "Download PDF",
+        "fileType": "pdf"
+      },
+      {
+        "url": "https://www.adda247.com/jobs/wp-content/uploads/sites/22/2026/05/11110950/CTET-Question-Paper-1-Shift-2-7-Feb-2026-Code-V.pdf",
+        "text": "Download PDF",
+        "fileType": "pdf"
+      },
+      {
+        "url": "https://www.adda247.com/jobs/wp-content/uploads/sites/22/2026/05/11111027/CTET-Question-Paper-2-Shift-1-8-Feb-2026-Code-H-Maths.pdf",
+        "text": "Download PDF",
+        "fileType": "pdf"
+      },
+      {
+        "url": "https://www.adda247.com/jobs/wp-content/uploads/sites/22/2026/03/13164623/Paper-2_08Feb2026.pdf",
+        "text": "Download PDF",
+        "fileType": "pdf"
+      },
+      {
+        "url": "https://www.adda247.com/jobs/wp-content/uploads/sites/22/2026/05/11111031/CTET-Question-Paper-2-Shift-1-8-Feb-2026-Code-H-Social-Science.pdf",
+        "text": "Download PDF",
+        "fileType": "pdf"
+      },
+      {
+        "url": "https://www.adda247.com/jobs/wp-content/uploads/sites/22/2026/05/11111035/CTET-Question-Paper-2-Shift-1-8-Feb-2026-Code-J-Maths-SST.pdf",
+        "text": "Download PDF",
+        "fileType": "pdf"
+      },
+      {
+        "url": "https://www.adda247.com/jobs/wp-content/uploads/sites/22/2026/05/11110955/CTET-Question-Paper-1-Shift-2-8-Feb-2026-Code-C.pdf",
+        "text": "Download PDF",
+        "fileType": "pdf"
+      },
+      {
+        "url": "https://www.adda247.com/jobs/wp-content/uploads/sites/22/2026/03/13164624/Paper-1_08Feb2026-1.pdf",
+        "text": "Download PDF",
+        "fileType": "pdf"
+      },
+      {
+        "url": "https://www.adda247.com/jobs/wp-content/uploads/sites/22/2026/05/11110959/CTET-Question-Paper-1-Shift-2-8-Feb-2026-Code-E.pdf",
+        "text": "Download PDF",
+        "fileType": "pdf"
+      },
+      {
+        "url": "https://www.adda247.com/jobs/wp-content/uploads/sites/22/2026/07/01124104/CTET-Question-Paper-Sanskrit-Paper-II-7-Feb-2026-exam.pdf",
+        "text": "Download PDF",
+        "fileType": "pdf"
+      },
+      {
+        "url": "https://www.adda247.com/jobs/wp-content/uploads/sites/22/2026/07/01124113/CTET-Question-Paper-Telugu-Paper-II-7-Feb-2026-exam.pdf",
+        "text": "Download PDF",
+        "fileType": "pdf"
+      }
+    ],
+    "notes": ""
+  }
+]

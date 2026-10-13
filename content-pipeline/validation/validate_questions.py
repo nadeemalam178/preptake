@@ -3,13 +3,13 @@
 PrepTake Content Pipeline — Enhanced Question Validator
 Strictly validates questions against the canonical schema, prevents duplicates,
 verifies that options match examination patterns (4 for CTET/STET, 5 for BPSC),
-and generates comprehensive validation reports.
+verifies the 4-tier provenance taxonomy, and generates comprehensive validation reports.
 """
 
 import json
 import os
 import sys
-from collections import defaultdict
+from collections import defaultdict, Counter
 
 VALID_EXAM_IDS = {
     'ctet-p2', 'ctet-p2-maths-science',
@@ -20,8 +20,18 @@ VALID_EXAM_IDS = {
 
 VALID_STATUSES = {
     'Verified Official PYQ',
+    'Unverified Coaching PYQ',
+    'Coaching Practice Drill',
     'Curated Practice Drill',
+    'Verified Syllabus Practice',
     'Mock Question'
+}
+
+VALID_CONTENT_TYPES = {
+    'official_pyq_verified',
+    'coaching_pyq_unverified',
+    'coaching_practice',
+    'original_practice'
 }
 
 def validate_question(q, index):
@@ -88,10 +98,14 @@ def validate_question(q, index):
     if not source:
         errors.append(f"Question {qid}: Missing source reference")
 
-    # 9. Verification status
+    # 9. Verification status & Content Type (4-tier taxonomy)
     v_status = q.get('verificationStatus')
     if v_status not in VALID_STATUSES:
         errors.append(f"Question {qid}: Invalid verificationStatus '{v_status}'")
+
+    c_type = q.get('contentType')
+    if c_type and c_type not in VALID_CONTENT_TYPES:
+        errors.append(f"Question {qid}: Invalid contentType '{c_type}'")
 
     # 10. Official PYQ label consistency
     is_pyq = q.get('isOfficialPYQ', False)
@@ -99,6 +113,8 @@ def validate_question(q, index):
         errors.append(f"Question {qid}: isOfficialPYQ is True but verificationStatus is '{v_status}'")
     if not is_pyq and v_status == 'Verified Official PYQ':
         errors.append(f"Question {qid}: isOfficialPYQ is False but verificationStatus is 'Verified Official PYQ'")
+    if not is_pyq and c_type == 'official_pyq_verified':
+        errors.append(f"Question {qid}: isOfficialPYQ is False but contentType is 'official_pyq_verified'")
 
     return errors
 
@@ -119,6 +135,8 @@ def run_validation(input_file, report_dir):
     duplicate_texts = []
 
     exam_stats = {}
+    content_type_counts = Counter()
+    verification_status_counts = Counter()
     chapter_stats = defaultdict(lambda: defaultdict(int))
     difficulty_stats = defaultdict(lambda: defaultdict(int))
 
@@ -145,16 +163,23 @@ def run_validation(input_file, report_dir):
         # Stats
         exam_id = q.get('examId')
         if exam_id not in exam_stats:
-            exam_stats[exam_id] = {'total': 0, 'pyq': 0, 'practice': 0}
+            exam_stats[exam_id] = {'total': 0, 'pyq_verified': 0, 'coaching_pyq': 0, 'practice': 0}
         exam_stats[exam_id]['total'] += 1
-        if q.get('isOfficialPYQ'):
-            exam_stats[exam_id]['pyq'] += 1
+
+        c_type = q.get('contentType', 'original_practice')
+        content_type_counts[c_type] += 1
+        verification_status_counts[q.get('verificationStatus', 'Unknown')] += 1
+
+        if c_type == 'official_pyq_verified':
+            exam_stats[exam_id]['pyq_verified'] += 1
+        elif c_type == 'coaching_pyq_unverified':
+            exam_stats[exam_id]['coaching_pyq'] += 1
         else:
             exam_stats[exam_id]['practice'] += 1
 
         ch = q.get('chapter', 'General')
         chapter_stats[exam_id][ch] += 1
-        diff = q.get('difficulty', 'Moderate')
+        diff = q.get('difficulty', 'Moderate').title()
         difficulty_stats[exam_id][diff] += 1
 
     report = {
@@ -167,6 +192,8 @@ def run_validation(input_file, report_dir):
         'validationErrorCount': len(total_errors),
         'validationErrors': total_errors,
         'examBreakdown': exam_stats,
+        'contentTypes': dict(content_type_counts),
+        'verificationStatuses': dict(verification_status_counts),
         'passed': len(total_errors) == 0 and len(duplicate_ids) == 0 and len(duplicate_texts) == 0
     }
 
@@ -183,21 +210,29 @@ def run_validation(input_file, report_dir):
         f.write(f"- **Duplicate IDs**: {report['duplicateIdCount']}\n")
         f.write(f"- **Duplicate Question Texts**: {report['duplicateTextCount']}\n")
         f.write(f"- **Validation Errors**: {report['validationErrorCount']}\n\n")
+
+        f.write("## 1. Provenance & Classification Taxonomy Summary\n\n")
+        f.write("| Classification Tier | Code Identifier | Verification Status | Total Count |\n")
+        f.write("| :--- | :--- | :--- | :---: |\n")
+        f.write(f"| **1. Verified Official PYQ** | `official_pyq_verified` | Verified against exam booklet & master key | **{content_type_counts['official_pyq_verified']}** |\n")
+        f.write(f"| **2. Unverified Coaching PYQ** | `coaching_pyq_unverified` | Coaching portal upload / response sheet | **{content_type_counts['coaching_pyq_unverified']}** |\n")
+        f.write(f"| **3. Coaching Practice Drill** | `coaching_practice` | Practice set from educational resource | **{content_type_counts['coaching_practice']}** |\n")
+        f.write(f"| **4. Original Syllabus Practice** | `original_practice` | NCERT & state syllabus aligned practice | **{content_type_counts['original_practice']}** |\n\n")
         
-        f.write("## 1. Examination Content Breakdown\n\n")
-        f.write("| Examination ID | Total Questions | Verified Official PYQs | Curated Practice Drills | Option Format |\n")
-        f.write("| :--- | :---: | :---: | :---: | :---: |\n")
+        f.write("## 2. Examination Content Breakdown\n\n")
+        f.write("| Examination ID | Total Questions | Verified Official PYQs | Unverified Coaching PYQs | Original Practice | Option Format |\n")
+        f.write("| :--- | :---: | :---: | :---: | :---: | :---: |\n")
         for eid, stats in exam_stats.items():
             opt_pat = "5 Options (A–E)" if "bpsc" in eid else "4 Options (A–D)"
-            f.write(f"| `{eid}` | **{stats['total']}** | {stats['pyq']} | {stats['practice']} | {opt_pat} |\n")
+            f.write(f"| `{eid}` | **{stats['total']}** | {stats['pyq_verified']} | {stats['coaching_pyq']} | {stats['practice']} | {opt_pat} |\n")
 
-        f.write("\n## 2. Difficulty Distribution\n\n")
+        f.write("\n## 3. Difficulty Distribution\n\n")
         f.write("| Examination | Easy | Moderate | Challenging |\n")
         f.write("| :--- | :---: | :---: | :---: |\n")
         for eid in exam_stats.keys():
-            f.write(f"| `{eid}` | {difficulty_stats[eid]['Easy']} | {difficulty_stats[eid]['Moderate']} | {difficulty_stats[eid]['Challenging']} |\n")
+            f.write(f"| `{eid}` | {difficulty_stats[eid]['Easy']} | {difficulty_stats[eid]['Moderate'] + difficulty_stats[eid]['Medium']} | {difficulty_stats[eid]['Challenging'] + difficulty_stats[eid]['Hard']} |\n")
 
-        f.write("\n## 3. Top Chapters by Coverage\n\n")
+        f.write("\n## 4. Top Chapters by Coverage\n\n")
         for eid, chs in chapter_stats.items():
             f.write(f"### `{eid}`\n")
             for ch_title, cnt in sorted(chs.items(), key=lambda x: -x[1])[:8]:
@@ -214,8 +249,11 @@ def run_validation(input_file, report_dir):
     print(f"Validation Errors: {report['validationErrorCount']}")
     print(f"Duplicate IDs: {report['duplicateIdCount']}")
     print(f"Duplicate Texts: {report['duplicateTextCount']}")
+    print(f"4-Tier Taxonomy Counts:")
+    for ct, count in content_type_counts.items():
+        print(f"  • {ct}: {count}")
     for eid, s in exam_stats.items():
-        print(f"  • {eid}: {s['total']} total ({s['pyq']} Official PYQs, {s['practice']} Practice)")
+        print(f"  • {eid}: {s['total']} total ({s['pyq_verified']} Verified PYQs, {s['coaching_pyq']} Coaching PYQs, {s['practice']} Original Practice)")
     print(f"Reports saved to {json_path} and {md_path}")
 
     return report['passed']

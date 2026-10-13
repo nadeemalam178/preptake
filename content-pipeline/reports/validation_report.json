@@ -1,6 +1,6 @@
 {
-  "totalQuestions": 4139,
-  "uniqueIds": 4139,
+  "totalQuestions": 4719,
+  "uniqueIds": 4719,
   "duplicateIdCount": 0,
   "duplicateIds": [],
   "duplicateTextCount": 0,
@@ -9,25 +9,39 @@
   "validationErrors": [],
   "examBreakdown": {
     "ctet-p2": {
-      "total": 1029,
-      "pyq": 8,
+      "total": 1145,
+      "pyq_verified": 124,
+      "coaching_pyq": 0,
       "practice": 1021
     },
     "bihar-stet-p1": {
-      "total": 1028,
-      "pyq": 4,
+      "total": 1303,
+      "pyq_verified": 4,
+      "coaching_pyq": 275,
       "practice": 1024
     },
     "bpsc-tre-middle": {
-      "total": 1042,
-      "pyq": 6,
+      "total": 1151,
+      "pyq_verified": 6,
+      "coaching_pyq": 109,
       "practice": 1036
     },
     "bpsc-tre-secondary": {
-      "total": 1040,
-      "pyq": 6,
+      "total": 1120,
+      "pyq_verified": 86,
+      "coaching_pyq": 0,
       "practice": 1034
     }
+  },
+  "contentTypes": {
+    "official_pyq_verified": 220,
+    "original_practice": 4115,
+    "coaching_pyq_unverified": 384
+  },
+  "verificationStatuses": {
+    "Verified Official PYQ": 220,
+    "Verified Syllabus Practice": 4115,
+    "Unverified Coaching PYQ": 384
   },
   "passed": true
 }
